@@ -37,6 +37,7 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, \
 
 # python imports
 import mathutils
+import bmesh
 import array
 import glob
 import os
@@ -530,7 +531,10 @@ def mol_viz_clear(mcell_prop, force_clear=False):
                 mol_shape_obj.parent = mol_obj
 
             mol_obj.instance_type = 'VERTS'
+            # mol_obj.instance_type = 'FACES'
             mol_obj.use_instance_vertices_rotation = True
+            mol_obj.show_instancer_for_viewport = False
+            mol_obj.show_instancer_for_render = False
             mols_obj = objs.get("molecules")
             mol_obj.parent = mols_obj
 
@@ -1111,9 +1115,34 @@ def mol_viz_file_read(mcell, filepath):
 
                 # Add and set values of vertices at positions of molecules
                 # This uses vertices.add(), but where are the old vertices removed?
+                '''
+                '''
+		# Old method, works in Blender version <= 2.93
                 mol_pos_mesh.vertices.add(len(mol_pos)//3)
                 mol_pos_mesh.vertices.foreach_set("co", mol_pos)
                 mol_pos_mesh.vertices.foreach_set("normal", mol_orient)
+
+                # New method, works in Blender >= 3.3
+                # Make empty bmesh
+                '''
+                bm = bmesh.new()
+                
+                # Loop over positions in mol_pos:
+                for i in range(0, len(mol_pos), 3):
+                  xyz = mol_pos[i:i+3]
+                  orient = mol_orient[i:i+3]
+                  rot = z_axis.rotation_difference(orient).to_matrix().to_4x4()
+                  bmesh.ops.create_grid(
+                    bm,
+                    x_segments=1,
+		    y_segments=1,
+                    size=0.0001,
+                    matrix=mathutils.Matrix.Translation(xyz)@rot,
+		    calc_uvs=False)
+
+                bm.to_mesh(mol_pos_mesh)
+                bm.free()
+                '''
 
                 if mcell.cellblender_preferences.debug_level > 100:
 
@@ -1133,6 +1162,9 @@ def mol_viz_file_read(mcell, filepath):
                 scn_objs.link(mol_obj)
                 mol_shape_obj.parent = mol_obj
                 mol_obj.instance_type = 'VERTS'
+                # mol_obj.instance_type = 'FACES'
+                mol_obj.show_instancer_for_viewport = False
+                mol_obj.show_instancer_for_render = False
                 mol_obj.use_instance_vertices_rotation = True
                 mol_obj.parent = mols_obj
                 mol_obj.hide_select = True
