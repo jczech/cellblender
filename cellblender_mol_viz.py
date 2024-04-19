@@ -837,6 +837,28 @@ def get_used_molecule_names(name):
     return sorted(list(res))            
             
 
+
+def set_mol_orientation(bm, mol_pos, mol_orient):
+
+  # New method, works in Blender >= 3.3
+                
+  # Loop over positions in mol_pos
+  # and create a tiny oriented plane at each position:
+  z_axis = mathutils.Vector((0.0, 0.0, 1.0))
+  for i in range(0, len(mol_pos), 3):
+    xyz = mol_pos[i:i+3]
+    orient = mol_orient[i:i+3]
+    rot = z_axis.rotation_difference(orient).to_matrix().to_4x4()
+    bmesh.ops.create_grid(
+      bm,
+      x_segments=1,
+      y_segments=1,
+      size=0.0001,
+      matrix=mathutils.Matrix.Translation(xyz)@rot,
+      calc_uvs=False)
+
+
+
 def mol_viz_file_read(mcell, filepath):
     """ Read and Draw the molecule viz data for the current frame. """
 
@@ -1022,18 +1044,12 @@ def mol_viz_file_read(mcell, filepath):
             #ident_mat = mathutils.Matrix.Translation(
             #    mathutils.Vector((0.0, 0.0, 0.0)))
 
-            for mol_name in mol_dict.keys():
+            for mol_name, value in mol_dict.items():
                 mol_mat_name = "%s_mat" % (mol_name)
-                mol_type = mol_dict[mol_name][0]
-                mol_pos = mol_dict[mol_name][1]
-                mol_orient = mol_dict[mol_name][2]
+                mol_type, mol_pos, mol_orient = value
 
                 # print ( "in mol_viz_file_read with mol_name = " + mol_name + ", mol_mat_name = " + mol_mat_name + ", file = " + filepath[filepath.rfind(os.sep)+1:] )
 
-                # Randomly orient volume molecules
-                if mol_type == 0:
-                    mol_orient.extend([random.uniform(
-                        -1.0, 1.0) for i in range(len(mol_pos))])
 
                 # Look up the glyph, color, size, and other attributes from the molecules list
 
@@ -1116,36 +1132,46 @@ def mol_viz_file_read(mcell, filepath):
                 # Add and set values of vertices at positions of molecules
                 # This uses vertices.add(), but where are the old vertices removed?
                 '''
-                '''
 		# Old method, works in Blender version <= 2.93
                 mol_pos_mesh.vertices.add(len(mol_pos)//3)
                 mol_pos_mesh.vertices.foreach_set("co", mol_pos)
                 mol_pos_mesh.vertices.foreach_set("normal", mol_orient)
-
-                # New method, works in Blender >= 3.3
-                # Make empty bmesh
                 '''
-                bm = bmesh.new()
-                
-                # Loop over positions in mol_pos:
-                for i in range(0, len(mol_pos), 3):
-                  xyz = mol_pos[i:i+3]
-                  orient = mol_orient[i:i+3]
-                  rot = z_axis.rotation_difference(orient).to_matrix().to_4x4()
-                  bmesh.ops.create_grid(
-                    bm,
-                    x_segments=1,
-		    y_segments=1,
-                    size=0.0001,
-                    matrix=mathutils.Matrix.Translation(xyz)@rot,
-		    calc_uvs=False)
 
-                bm.to_mesh(mol_pos_mesh)
-                bm.free()
+                use_orient = mol.glyph_orientation
+
+                if use_orient:
+                  if mol_type == 0:
+                    mol_orient.extend([random.uniform(
+                        -1.0, 1.0) for i in range(len(mol_pos))])
+                  bm = bmesh.new()
+                  set_mol_orientation(bm, mol_pos, mol_orient)
+
                 '''
+                if mol_type == 0:
+                  if use_vol_orient:
+                    use_orient = True
+                    # Randomly orient volume molecules
+                    mol_orient.extend([random.uniform(
+                        -1.0, 1.0) for i in range(len(mol_pos))])
+                    bm = bmesh.new()
+                    set_mol_orientation(bm, mol_pos, mol_orient)
+                else:
+                  if use_surf_orient:
+                    use_orient = True
+                    bm = bmesh.new()
+                    set_mol_orientation(bm, mol_pos, mol_orient)
+                '''
+
+                if use_orient:
+                  bm.to_mesh(mol_pos_mesh)
+                  bm.free()
+                else:
+                  mol_pos_mesh.vertices.add(len(mol_pos)//3)
+                  mol_pos_mesh.vertices.foreach_set("co", mol_pos)
+
 
                 if mcell.cellblender_preferences.debug_level > 100:
-
                   __import__('code').interact(local={k: v for ns in (globals(), locals()) for k, v in ns.items()})
 
                 # Save the molecule's visibility state, so it can be restored later
@@ -1161,11 +1187,14 @@ def mol_viz_file_read(mcell, filepath):
                 mol_obj = objs.new(mol_name, mol_pos_mesh)
                 scn_objs.link(mol_obj)
                 mol_shape_obj.parent = mol_obj
-                mol_obj.instance_type = 'VERTS'
-                # mol_obj.instance_type = 'FACES'
+                if use_orient:
+                  mol_obj.instance_type = 'FACES'
+                  mol_obj.use_instance_vertices_rotation = True
+                else:
+                  mol_obj.instance_type = 'VERTS'
+                  mol_obj.use_instance_vertices_rotation = False
                 mol_obj.show_instancer_for_viewport = False
                 mol_obj.show_instancer_for_render = False
-                mol_obj.use_instance_vertices_rotation = True
                 mol_obj.parent = mols_obj
                 mol_obj.hide_select = True
 
