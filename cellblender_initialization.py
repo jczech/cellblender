@@ -158,7 +158,7 @@ EFFECTOR_GRID_DENSITY works also in MCell MDL."""
                                              user_descr=helptext )
 
     def remove_properties ( self, context ):
-        ps = context.scene.mcell.parameter_system
+        ps = bpy.context.scene.mcell.parameter_system
         # It's not needed to remove these properties because there is only one copy? Mostly yes.
 
         # It appears that removing some of the "original 16" panel parameters causes a problem.
@@ -184,7 +184,7 @@ EFFECTOR_GRID_DENSITY works also in MCell MDL."""
 
 
     def build_data_model_from_properties ( self, context ):
-        mcell4_mode = context.scene.mcell.cellblender_preferences.mcell4_mode
+        mcell4_mode = bpy.context.scene.mcell.cellblender_preferences.mcell4_mode
 
         dm_dict = {}
 
@@ -265,7 +265,7 @@ EFFECTOR_GRID_DENSITY works also in MCell MDL."""
 
 
     def build_properties_from_data_model ( self, context, dm_dict ):
-        mcell4_mode = context.scene.mcell.cellblender_preferences.mcell4_mode
+        mcell4_mode = bpy.context.scene.mcell.cellblender_preferences.mcell4_mode
         
         print ( "Top of MCellInitializationPropertyGroup.build_properties_from_data_model" )
 
@@ -547,7 +547,7 @@ EFFECTOR_GRID_DENSITY works also in MCell MDL."""
     command_options_show_help: BoolProperty ( default=False, description="Toggle more information about this parameter" )
 
     def draw_layout(self, context, layout):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell4_mode = mcell.cellblender_preferences.mcell4_mode
 
         if not mcell.initialized:

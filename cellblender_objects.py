@@ -76,7 +76,7 @@ def restore_object_status(context, objstat):
             o.select_set( ostat['sel'] == True )
 #            o.layers = ostat['layers'][:]
             if ostat['act']:
-                context.view_layer.objects.active = o
+                bpy.context.view_layer.objects.active = o
 
 
 
@@ -120,7 +120,7 @@ class MCELL_OT_model_obj_add_mat(bpy.types.Operator):
 
     def execute(self, context):
         objstat = get_object_status(context)
-        model_objects = context.scene.mcell.model_objects
+        model_objects = bpy.context.scene.mcell.model_objects
         obj_name = str(model_objects.object_list[model_objects.active_obj_index].name)
         for obj in context.selected_objects:
             obj.select_set(False)
@@ -148,7 +148,7 @@ class MCELL_OT_model_objects_add(bpy.types.Operator):
 
     def execute(self, context):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         # From the list of selected objects, only add MESH objects.
         # Avoid adding any of the molecule mesh objects (either pos or shapes).
         try:
@@ -201,9 +201,9 @@ class MCELL_OT_model_objects_remove(bpy.types.Operator):
 
     def execute(self, context):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mobjs = mcell.model_objects
-        sobjs = context.scene.collection.children[0].objects
+        sobjs = bpy.context.scene.collection.children[0].objects
 
         if (len(mobjs.object_list) > 0):
             obj = sobjs.get(mobjs.object_list[mobjs.active_obj_index].name)
@@ -227,9 +227,9 @@ class MCELL_OT_model_objects_remove_sel(bpy.types.Operator):
 
     def execute(self, context):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mobjs = mcell.model_objects
-        sobjs = context.scene.collection.children[0].objects
+        sobjs = bpy.context.scene.collection.children[0].objects
 
         # From the list of selected objects, only remove MESH objects.
         objs = [obj for obj in context.selected_objects if obj.type == 'MESH']
@@ -263,9 +263,9 @@ class MCELL_OT_select_filtered(bpy.types.Operator):
 
     def execute(self, context):
 
-        scn = context.scene
+        scn = bpy.context.scene
         mcell = scn.mcell
-        objs = context.scene.collection.children[0].objects
+        objs = bpy.context.scene.collection.children[0].objects
 
         filter = mcell.object_selector.filter
 
@@ -287,9 +287,9 @@ class MCELL_OT_deselect_filtered(bpy.types.Operator):
 
     def execute(self, context):
 
-        scn = context.scene
+        scn = bpy.context.scene
         mcell = scn.mcell
-        objs = context.scene.collection.children[0].objects
+        objs = bpy.context.scene.collection.children[0].objects
 
         filter = mcell.object_selector.filter
 
@@ -311,9 +311,9 @@ class MCELL_OT_toggle_visibility_filtered(bpy.types.Operator):
 
   def execute(self,context):
 
-    scn = context.scene
+    scn = bpy.context.scene
     mcell = scn.mcell
-    objs = context.scene.collection.children[0].objects
+    objs = bpy.context.scene.collection.children[0].objects
 
     filter = mcell.object_selector.filter
 
@@ -336,9 +336,9 @@ class MCELL_OT_toggle_renderability_filtered(bpy.types.Operator):
 
   def execute(self,context):
 
-    scn = context.scene
+    scn = bpy.context.scene
     mcell = scn.mcell
-    objs = context.scene.collection.children[0].objects
+    objs = bpy.context.scene.collection.children[0].objects
 
     filter = mcell.object_selector.filter
 
@@ -359,7 +359,7 @@ class MCell_OT_object_show(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        for o in context.scene.collection.children[0].objects:
+        for o in bpy.context.scene.collection.children[0].objects:
             if 'mcell' in o:
                 if o.mcell.include:
                     # This is a model object, so show it
@@ -374,7 +374,7 @@ class MCELL_OT_toggle_visibility(bpy.types.Operator):
     bl_description = ("Toggle visibility of model object")
 
     def execute(self, context):
-        model_objects = context.scene.mcell.model_objects
+        model_objects = bpy.context.scene.mcell.model_objects
         obj_name = str(model_objects.object_list[model_objects.active_obj_index].name)
         obj = bpy.data.objects[obj_name]
         if obj.visible_get():
@@ -394,7 +394,7 @@ class MCell_OT_object_show_all(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        for o in context.scene.collection.children[0].objects:
+        for o in bpy.context.scene.collection.children[0].objects:
             if 'mcell' in o:
                 if o.mcell.include:
                     # This is a model object, so show it
@@ -410,7 +410,7 @@ class MCell_OT_object_hide_all(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        for o in context.scene.collection.children[0].objects:
+        for o in bpy.context.scene.collection.children[0].objects:
             if 'mcell' in o:
                 if o.mcell.include:
                     # This is a model object, so hide it
@@ -428,14 +428,12 @@ class MCell_OT_object_hide_all(bpy.types.Operator):
 @persistent
 def model_objects_update(context):
     # print ( "model_objects_update() called" )
-    if not context:
-        context = bpy.context
 
-    objstat = get_object_status(context)
+    objstat = get_object_status(bpy.context)
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     mobjs = mcell.model_objects
-    sobjs = context.scene.collection.children[0].objects
+    sobjs = bpy.context.scene.collection.children[0].objects
 
     model_obj_names = [obj.name for obj in sobjs if obj.mcell.include]
 
@@ -559,7 +557,7 @@ class MCELL_UL_model_objects(bpy.types.UIList):
             # But this has many "trickle down" effects so it hasn't been done yet.
             # layout.prop(item, 'name', text="", icon='FILE_TICK')
             # layout.prop(bpy.data.objects[item.name], 'name', text="", icon='FILE_TICK')
-            model_obj = context.scene.collection.children[0].objects[item.name]
+            model_obj = bpy.context.scene.collection.children[0].objects[item.name]
             col = layout.column()
             col.label(text=item.name, icon='CHECKMARK')
 
@@ -618,14 +616,14 @@ class MCELL_UL_model_objects(bpy.types.UIList):
 # Model Objects Property Groups
 
 def object_show_only_callback(self, context):
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
 
     #print ( "Object show only callback for object " + self.name )
     # Note the check before set to keep from infinite recursion in properties!!
 #    if self.object_show_only != False:
 #        self.object_show_only = False
 
-    for o in context.scene.collection.children[0].objects:
+    for o in bpy.context.scene.collection.children[0].objects:
         if 'mcell' in o:
             if o.mcell.include:
                 # This is a model object, so check the name
@@ -652,7 +650,7 @@ def object_show_only_callback(self, context):
 
 
 def toggle_visibility_callback(self, context):
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
 
     obj_name = self.name
     obj = bpy.data.objects[obj_name]
@@ -672,7 +670,7 @@ def toggle_visibility_callback(self, context):
 
 def changed_dynamic_callback(self, context):
     # Whenever an object's dynamic flag changes, check to see how that affects the "has_some_dynamic" flag
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     if (self.dynamic):
         # Easy case: if this one is dynamic, then has_some_dynamic must be true
         mcell.model_objects.has_some_dynamic = True
@@ -683,11 +681,11 @@ def changed_dynamic_callback(self, context):
 
 def changed_display_source_callback(self, context):
     # Build the path starting from output_data
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     #mol_viz = mcell.mol_viz
     #data_layout = mcell.mol_viz['data_layout']
     #bpy.ops.mcell.update_data_layout()
-    mcell.model_objects.update_scene(context.scene, force=True)
+    mcell.model_objects.update_scene(bpy.context.scene, force=True)
     #bpy.ops.mcell.read_viz_data()
 
 
@@ -777,7 +775,7 @@ def active_obj_index_changed ( self, context ):
 
     if len(self.object_list) > 0:
         model_object = self.object_list[self.active_obj_index]
-        for o in context.scene.collection.children[0].objects:
+        for o in bpy.context.scene.collection.children[0].objects:
             if o.name == model_object.name:
                 # Unhide, Select, and Make Active
                 if not o.visible_get():
@@ -813,7 +811,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
 
     def draw_layout ( self, context, layout ):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )
@@ -835,7 +833,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
             if self.show_cursor_controls:
               row = layout.row()
-              row.prop ( context.scene, "cursor_location", text="" )
+              row.prop ( bpy.context.scene, "cursor_location", text="" )
 
 
             row = layout.row()
@@ -876,25 +874,25 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
                     row.prop ( self.object_list[self.active_obj_index], "description" )
                     row = box.row()
                     col = row.column()
-                    col.prop ( context.scene.collection.children[0].objects[obj_name], "display_type", text="" )
+                    col.prop ( bpy.context.scene.collection.children[0].objects[obj_name], "display_type", text="" )
                     col = row.column()
-                    col.prop ( context.scene.collection.children[0].objects[obj_name], "show_wire", text="Show Wire" )
+                    col.prop ( bpy.context.scene.collection.children[0].objects[obj_name], "show_wire", text="Show Wire" )
                     col = row.column()
-                    col.prop ( context.scene.collection.children[0].objects[obj_name], "show_in_front", text="Show In Front" )
+                    col.prop ( bpy.context.scene.collection.children[0].objects[obj_name], "show_in_front", text="Show In Front" )
                     col = row.column()
-                    col.prop ( context.scene.collection.children[0].objects[obj_name], "show_name", text="Show Name" )
+                    col.prop ( bpy.context.scene.collection.children[0].objects[obj_name], "show_name", text="Show Name" )
                     
                     has_material = True
-                    if len(context.scene.collection.children[0].objects[obj_name].material_slots) <= 0:
+                    if len(bpy.context.scene.collection.children[0].objects[obj_name].material_slots) <= 0:
                       has_material = False
                     else:
-                      if context.scene.collection.children[0].objects[obj_name].material_slots[0].material == None:
+                      if bpy.context.scene.collection.children[0].objects[obj_name].material_slots[0].material == None:
                         has_material = False
                     if not has_material:
                       row = box.row()
                       row.operator("mcell.model_obj_add_mat", text="Add a Material")
                     else:
-                      mat = context.scene.collection.children[0].objects[obj_name].material_slots[0].material
+                      mat = bpy.context.scene.collection.children[0].objects[obj_name].material_slots[0].material
                       row = box.row()
                       col = row.column()
                       col.prop ( mat, "diffuse_color", text="" )
@@ -906,12 +904,12 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
                       row = box.row()
                       col = row.column()
-                      col.prop ( context.scene.collection.children[0].objects[obj_name], "show_transparent", text="Object Transparent" )
+                      col.prop ( bpy.context.scene.collection.children[0].objects[obj_name], "show_transparent", text="Object Transparent" )
                       col = row.column()
 
                       '''
                       col.prop ( mat, "use_transparency", text="Material Transparent" )
-                      if context.scene.collection.children[0].objects[obj_name].show_transparent and mat.use_transparency:
+                      if bpy.context.scene.collection.children[0].objects[obj_name].show_transparent and mat.use_transparency:
                         row = box.row()
                         row.prop ( mat, "alpha", text="Alpha" )
                       '''
@@ -924,7 +922,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
                     elif self.object_list[self.active_obj_index].object_source == 'script':
                         row = box.row()
                         row.prop_search ( self.object_list[self.active_obj_index], "script_name",
-                                          context.scene.mcell.scripting, "internal_python_scripts_list",
+                                          bpy.context.scene.mcell.scripting, "internal_python_scripts_list",
                                           text="Script", icon='TEXT' )
                         row.operator("mcell.scripting_refresh", icon='FILE_REFRESH', text="")
                         row = box.row()
@@ -946,12 +944,12 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
     
         print ( "Model Objects List building Data Model" )
 
-        mcell_obj_list = context.scene.mcell.model_objects.object_list
+        mcell_obj_list = bpy.context.scene.mcell.model_objects.object_list
 
         mo_dm = {}
         mo_dm['data_model_version'] = "DM_2018_01_11_1330"
         mo_list = []
-        obj_list = [ obj for obj in context.scene.collection.children[0].objects if obj.mcell.include ]
+        obj_list = [ obj for obj in bpy.context.scene.collection.children[0].objects if obj.mcell.include ]
         for scene_object in obj_list:
           name = scene_object.name
           obj_dm = { "name": name }
@@ -1027,8 +1025,8 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
     def build_properties_from_data_model ( self, context, dm ):
         # Note that the model object list is represented in two places:
-        #   context.scene.mcell.model_objects.object_list[] - stores the name
-        #   context.scene.objects[].mcell.include - boolean is true for model objects
+        #   bpy.context.scene.mcell.model_objects.object_list[] - stores the name
+        #   bpy.context.scene.objects[].mcell.include - boolean is true for model objects
         # This code updates both locations based on the data model
 
         if dm['data_model_version'] != "DM_2018_01_11_1330":
@@ -1059,7 +1057,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
               self.active_obj_index = obj_list_len-1
 
         # Use the list of Data Model names to set flags of all objects
-        for k,o in context.scene.collection.children[0].objects.items():
+        for k,o in bpy.context.scene.collection.children[0].objects.items():
             if k in mo_list:
                 o.mcell.include = True
             else:
@@ -1076,7 +1074,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
         mat_dict = {}
 
         # First build the list of materials from all objects
-        for data_object in context.scene.collection.children[0].objects:
+        for data_object in bpy.context.scene.collection.children[0].objects:
             if data_object.type == 'MESH':
                 if data_object.mcell.include:
                     print ( "Saving Materials for: " + data_object.name )
@@ -1161,7 +1159,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
                   # g_obj['material_name'] = data_object.data.materials[0].name
 
         # This is needed for shape key dynamic geometry rather than: mesh = data_object.data
-#        mesh = data_object.to_mesh(context.scene, True, 'PREVIEW', calc_tessface=False)
+#        mesh = data_object.to_mesh(bpy.context.scene, True, 'PREVIEW', calc_tessface=False)
         mesh = data_object.to_mesh(preserve_all_data_layers=True, depsgraph=context.evaluated_depsgraph_get())
 
         mesh.transform(mathutils.Matrix() @ data_object.matrix_world)
@@ -1204,7 +1202,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
         g_dm = {}
         g_list = []
 
-        obj_list = [ obj for obj in context.scene.collection.children[0].objects if obj.mcell.include ]
+        obj_list = [ obj for obj in bpy.context.scene.collection.children[0].objects if obj.mcell.include ]
 
         # save status of active object
         saved_active_object = context.view_layer.objects.active
@@ -1215,7 +1213,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
         if dyn_geo:
             frame_obj_names = []
-            obj_list = context.scene.mcell.model_objects.object_list
+            obj_list = bpy.context.scene.mcell.model_objects.object_list
             print ( "Adding a frame list to each dynamic object that's not scripted" )
             for g_obj in g_dm['object_list']:
                 if obj_list[g_obj['name']].dynamic:
@@ -1226,26 +1224,26 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
                         g_obj['frame_list'] = []
 
             # Save state of mol_viz_enable and disable mol viz during frame change for dynamic geometry
-            mol_viz_state = context.scene.mcell.mol_viz.mol_viz_enable
-            context.scene.mcell.mol_viz.mol_viz_enable = False
+            mol_viz_state = bpy.context.scene.mcell.mol_viz.mol_viz_enable
+            bpy.context.scene.mcell.mol_viz.mol_viz_enable = False
 
             # Save the current frame to restore after sweeping through the frames
-            fc = context.scene.frame_current
+            fc = bpy.context.scene.frame_current
 
             # Cycle through all frames to build the dynamic geometry
-            for frame_number in range(context.scene.mcell.initialization.iterations.get_value()+1):
-                context.scene.frame_set(frame_number)
+            for frame_number in range(bpy.context.scene.mcell.initialization.iterations.get_value()+1):
+                bpy.context.scene.frame_set(frame_number)
                 for g_obj in g_dm['object_list']:
                     if 'frame_list' in g_obj:
                         print ( "    Adding a single frame to object " + g_obj['name'] )
-                        dm_obj = self.build_data_model_object_from_mesh( context, context.scene.collection.children[0].objects[g_obj['name']])
+                        dm_obj = self.build_data_model_object_from_mesh( context, bpy.context.scene.collection.children[0].objects[g_obj['name']])
                         g_obj['frame_list'].append ( dm_obj )
 
             # Restore setting for mol viz
-            context.scene.mcell.mol_viz.mol_viz_enable = mol_viz_state
+            bpy.context.scene.mcell.mol_viz.mol_viz_enable = mol_viz_state
 
             # Restore the current frame
-            context.scene.frame_set(fc)
+            bpy.context.scene.frame_set(fc)
 
         # restore saved active object
         context.view_layer.objects.active = saved_active_object
@@ -1259,7 +1257,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
         # TODO This function is VERY slow for large numbers of objects
         # TODO There should be a faster way since Blender can do this quicly
         bpy.ops.object.select_all(action='DESELECT')
-        for scene_object in context.scene.collection.children[0].objects:
+        for scene_object in bpy.context.scene.collection.children[0].objects:
             if scene_object.type == 'MESH':
                 # print ( "Deleting Mesh object: " + scene_object.name )
                 scene_object.hide_viewport = False
@@ -1282,7 +1280,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
         # Delete all objects with identical names to model objects in the data model
         bpy.ops.object.select_all(action='DESELECT')
-        for scene_object in context.scene.collection.children[0].objects:
+        for scene_object in bpy.context.scene.collection.children[0].objects:
             if scene_object.type == 'MESH':
                 print ( "Mesh object: " + scene_object.name )
                 if scene_object.name in model_names:
@@ -1335,7 +1333,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
             #print ( "    Add " + model_object['name'] + " to scene.objects" )
 
-            context.scene.collection.children[0].objects.link ( new_obj )
+            bpy.context.scene.collection.children[0].objects.link ( new_obj )
             # The following code slowed the creation process to a crawl!!!
             #bpy.ops.object.select_all ( action = "DESELECT" )
             #new_obj.select_set(True)
