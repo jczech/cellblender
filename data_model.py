@@ -473,7 +473,7 @@ try:
 
         def execute(self, context):
             print ( "Browsing CellBlender Data Model:" )
-            mcell = context.scene.mcell
+            mcell = bpy.context.scene.mcell
             mcell_dm = mcell.build_data_model_from_properties ( context, geometry=mcell.scripting.include_geometry_in_dm, scripts=mcell.scripting.include_scripts_in_dm )
             mcell['data_model'] = pickle_data_model ( mcell_dm )
             app = CellBlenderDataModelBrowser()
@@ -488,7 +488,7 @@ try:
 
         def execute(self, context):
             print ( "Showing CellBlender Data Model:" )
-            mcell = context.scene.mcell
+            mcell = bpy.context.scene.mcell
             mcell_dm = mcell.build_data_model_from_properties ( context, geometry=mcell.scripting.include_geometry_in_dm, scripts=mcell.scripting.include_scripts_in_dm )
             mcell['data_model'] = pickle_data_model ( mcell_dm )
             return {'FINISHED'}
@@ -502,7 +502,7 @@ try:
 
         def execute(self, context):
             print ( "Printing CellBlender Data Model:" )
-            mcell = context.scene.mcell
+            mcell = bpy.context.scene.mcell
             mcell_dm = mcell.build_data_model_from_properties ( context, geometry=mcell.scripting.include_geometry_in_dm, scripts=mcell.scripting.include_scripts_in_dm )
             dump_data_model ( "Data Model", {"mcell": mcell_dm} )
             return {'FINISHED'}
@@ -516,7 +516,7 @@ try:
 
         def execute(self, context):
             print ( "Printing CellBlender Data Model Keys:" )
-            mcell = context.scene.mcell
+            mcell = bpy.context.scene.mcell
             mcell_dm = mcell.build_data_model_from_properties ( context, geometry=mcell.scripting.include_geometry_in_dm, scripts=mcell.scripting.include_scripts_in_dm )
             key_set = get_data_model_keys ( mcell_dm )
 
@@ -540,7 +540,7 @@ try:
 
         def execute(self, context):
             #print ( "Saving CellBlender model to file: " + self.filepath )
-            mcell_dm = context.scene.mcell.build_data_model_from_properties ( context, geometry=False )
+            mcell_dm = bpy.context.scene.mcell.build_data_model_from_properties ( context, geometry=False )
             save_data_model_to_file ( mcell_dm, self.filepath )
             """
             dm = { 'mcell': mcell_dm }
@@ -563,7 +563,7 @@ try:
 
         def execute(self, context):
             #print ( "Saving CellBlender model and geometry to file: " + self.filepath )
-            mcell_dm = context.scene.mcell.build_data_model_from_properties ( context, geometry=True, scripts=True )
+            mcell_dm = bpy.context.scene.mcell.build_data_model_from_properties ( context, geometry=True, scripts=True )
             save_data_model_to_file ( mcell_dm, self.filepath )
             return {'FINISHED'}
 
@@ -578,7 +578,7 @@ try:
         filter_glob = StringProperty(default="*.json",options={'HIDDEN'},)
 
         def execute(self, context):
-            mcell_dm = context.scene.mcell.build_data_model_from_properties ( context, geometry=True, scripts=True )
+            mcell_dm = bpy.context.scene.mcell.build_data_model_from_properties ( context, geometry=True, scripts=True )
             save_data_model_to_json_file ( mcell_dm, self.filepath )
             return {'FINISHED'}
 
@@ -600,7 +600,7 @@ try:
 
             dm = unpickle_data_model ( pickle_string )
             dm['mcell'] = cellblender.cellblender_main.MCellPropertyGroup.upgrade_data_model(dm['mcell'])
-            context.scene.mcell.build_properties_from_data_model ( context, dm['mcell'] )
+            bpy.context.scene.mcell.build_properties_from_data_model ( context, dm['mcell'] )
 
             print ( "Done loading CellBlender model." )
             return {'FINISHED'}
@@ -623,7 +623,7 @@ try:
 
             dm = unpickle_data_model ( pickle_string )
             dm['mcell'] = cellblender.cellblender_main.MCellPropertyGroup.upgrade_data_model(dm['mcell'])
-            context.scene.mcell.build_properties_from_data_model ( context, dm['mcell'], geometry=True, scripts=True )
+            bpy.context.scene.mcell.build_properties_from_data_model ( context, dm['mcell'], geometry=True, scripts=True )
 
             print ( "Done loading CellBlender model." )
             return {'FINISHED'}
@@ -659,7 +659,7 @@ def import_datamodel_all_json(filepath, context):
     dm = {}
     dm['mcell'] = data_model_from_json ( json_string ) ['mcell']
     dm['mcell'] = cellblender.cellblender_main.MCellPropertyGroup.upgrade_data_model(dm['mcell'])
-    context.scene.mcell.build_properties_from_data_model ( context, dm['mcell'], geometry=True, scripts=True )
+    bpy.context.scene.mcell.build_properties_from_data_model ( context, dm['mcell'], geometry=True, scripts=True )
 
 
 def save_mcell_preferences ( mcell ):
@@ -684,7 +684,7 @@ import traceback
 
 def upgrade_properties_from_data_model ( context ):
     print ( "Upgrading Properties from Data Model" )
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
 
     print ( "Inside upgrade_properties_from_data_model, len(ppl) = " + str(len(mcell.parameter_system.panel_parameter_list)) )
 
@@ -707,8 +707,8 @@ def upgrade_properties_from_data_model ( context ):
 
     print ( "Delete MCell RNA properties" )
     del bpy.types.Scene.mcell
-    if context.scene.get ( 'mcell' ):
-      del context.scene['mcell']
+    if bpy.context.scene.get ( 'mcell' ):
+      del bpy.context.scene['mcell']
 
     # Something like the following code would be needed if the
     #  internal data model handled the regions. But at this time
@@ -732,7 +732,7 @@ def upgrade_properties_from_data_model ( context ):
     print ( "Reinstated MCell RNA properties" )
 
     # Restore the local variable mcell to be consistent with not taking this branch of the if.
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     mcell.init_properties()
 
     # Restore the current preferences that had been saved
@@ -753,7 +753,7 @@ def upgrade_properties_from_data_model ( context ):
 
 def upgrade_RC3_properties_from_data_model ( context ):
       print ( "Upgrading Properties from an RC3 File Data Model" )
-      mcell = context.scene.mcell
+      mcell = bpy.context.scene.mcell
 
       dm = None
       if 'data_model' in mcell:
@@ -769,8 +769,8 @@ def upgrade_RC3_properties_from_data_model ( context ):
 
       print ( "Delete MCell RNA properties" )
       del bpy.types.Scene.mcell
-      if context.scene.get ( 'mcell' ):
-        del context.scene['mcell']
+      if bpy.context.scene.get ( 'mcell' ):
+        del bpy.context.scene['mcell']
 
       # Something like the following code would be needed if the
       #  internal data model handled the regions. But at this time
@@ -794,7 +794,7 @@ def upgrade_RC3_properties_from_data_model ( context ):
       print ( "Reinstated MCell RNA properties" )
 
       # Restore the local variable mcell
-      mcell = context.scene.mcell
+      mcell = bpy.context.scene.mcell
 
       # Restore the current preferences that had been saved
       restore_mcell_preferences ( mp, mcell )
@@ -821,27 +821,20 @@ try:
         print ( "save_pre() has been called ... source_id = " + source_id )
         if cellblender.cellblender_info['versions_match']:
             print ( "save_pre() called with versions matching ... save Data Model and Source ID" )
-            if not context:
-                # The context appears to always be "None", so use bpy.context
-                context = bpy.context
-            if hasattr ( context.scene, 'mcell' ):
+            if hasattr ( bpy.context.scene, 'mcell' ):
                 print ( "Updating source ID of mcell before saving" )
-                mcell = context.scene.mcell
+                mcell = bpy.context.scene.mcell
                 mcell['saved_by_source_id'] = source_id
                 dm = mcell.build_data_model_from_properties ( context )
-                context.scene.mcell['data_model'] = pickle_data_model(dm)
+                mcell['data_model'] = pickle_data_model(dm)
         else:
             print ( "save_pre() called with versions not matching ... force an upgrade." )
-            if not context:
-                # The context appears to always be "None", so use bpy.context
-                context = bpy.context
-            if hasattr ( context.scene, 'mcell' ):
-                mcell = context.scene.mcell
+            if hasattr ( bpy.context.scene, 'mcell' ):
+                mcell = bpy.context.scene.mcell
                 # Only save the data model if mcell has been initialized
                 if hasattr ( mcell, 'initialized' ):
                     if mcell.initialized:
                         print ( "Upgrading blend file to current version (" + str(source_id) + " before saving" )
-                        mcell = context.scene.mcell
                         if not mcell.get ( 'saved_by_source_id' ):
                             # This .blend file was created with CellBlender RC3 / RC4
                             upgrade_RC3_properties_from_data_model ( context )
@@ -849,7 +842,7 @@ try:
                             upgrade_properties_from_data_model ( context )
                         mcell['saved_by_source_id'] = source_id
                         dm = mcell.build_data_model_from_properties ( context )
-                        context.scene.mcell['data_model'] = pickle_data_model(dm)
+                        mcell['data_model'] = pickle_data_model(dm)
         print ( "========================================" )
 
 
@@ -894,15 +887,11 @@ try:
         source_id = cellblender.cellblender_info['cellblender_source_sha1']
         print ( "cellblender source id = " + source_id )
 
-        if not context:
-            # The context appears to always be "None", so use bpy.context
-            context = bpy.context
-
         api_version_in_blend_file = -1  # TODO May not be used
 
         #if 'mcell' in context.scene:
-        if hasattr ( context.scene, 'mcell' ):
-            mcell = context.scene.mcell
+        if hasattr ( bpy.context.scene, 'mcell' ):
+            mcell = bpy.context.scene.mcell
 
             # mcell.versions_match = False
             cellblender.cellblender_info['versions_match'] = False
