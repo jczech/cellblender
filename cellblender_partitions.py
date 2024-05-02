@@ -406,7 +406,7 @@ class MCellPartitionsPropertyGroup(bpy.types.PropertyGroup):
     def build_data_model_from_properties ( self, context ):
         print ( "Partitions building Data Model" )
         
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell4_mode = mcell.cellblender_preferences.mcell4_mode
         
         dm_dict = {}

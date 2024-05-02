@@ -86,7 +86,7 @@ def check_release_site(self, context):
 def check_release_site_wrapped(context):
     """ Make sure that the release site is valid. """
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     rel_list = mcell.release_sites.mol_release_list
     rel = rel_list[mcell.release_sites.active_release_index]
     rel.status = ""

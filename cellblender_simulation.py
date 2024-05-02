@@ -2424,7 +2424,7 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
         dm['start_seed'] = self.start_seed.get_expr()
         dm['end_seed'] = self.end_seed.get_expr()
         dm['run_limit'] = self.run_limit.get_expr()
-        dm['export_format'] = context.scene.mcell.export_project.export_format
+        dm['export_format'] = bpy.context.scene.mcell.export_project.export_format
         p_list = []
         for p in self.processes_list:
             p_list.append ( p.build_data_model_from_properties(context) )
