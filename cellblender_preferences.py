@@ -742,6 +742,7 @@ classes = (
             MCELL_OT_reset_theme,
             MCELL_OT_black_theme,
             MCELL_OT_white_theme,
+            MCELL_MT_presets,
             CellBlenderPreferencesPropertyGroup,
           )
 
