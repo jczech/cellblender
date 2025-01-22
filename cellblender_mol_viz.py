@@ -150,7 +150,7 @@ class MCELL_OT_update_data_layout(bpy.types.Operator):
 
     def execute(self, context):
         # print ( "MCELL_OT_update_data_layout operator" )
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell.mol_viz.update_data_layout(context)
         return {'FINISHED'}
 
@@ -168,7 +168,7 @@ class MCELL_OT_read_viz_data(bpy.types.Operator):
         # "Read Molecule Files" button is pushed or a seed value is selected
         # from the list)
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mol_viz = mcell.mol_viz
         choices_list = mol_viz.choices_list
 
@@ -281,7 +281,7 @@ class MCELL_OT_read_viz_data(bpy.types.Operator):
           set_viz_boundaries(context)
 
           # Set the mol_file_index to match the cursor as closely as possible
-          cursor_index = context.scene.frame_current
+          cursor_index = bpy.context.scene.frame_current
           if len(mol_file_list) > cursor_index:
             mol_viz.mol_file_index = cursor_index
           elif len(mol_file_list) >= 1:
@@ -307,7 +307,7 @@ class MCELL_OT_read_viz_data(bpy.types.Operator):
 def set_viz_boundaries( context ):
         global global_mol_file_list
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
 #        mcell.mol_viz.mol_file_num = len(mcell.mol_viz.mol_file_list)
         mcell.mol_viz.mol_file_num = len(global_mol_file_list)
@@ -350,7 +350,7 @@ class MCELL_OT_select_viz_data(bpy.types.Operator):
     def execute(self, context):
         global global_mol_file_list
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if (os.path.isdir(self.filepath)):
             mol_file_dir = self.filepath
@@ -384,7 +384,7 @@ class MCELL_OT_select_viz_data(bpy.types.Operator):
         # Called when the file selection panel is requested
         # (when the "Set Molecule Viz Directory" button is pushed)
         print("MCELL_OT_select_viz_data.invoke() called")
-        context.window_manager.fileselect_add(self)
+        bpy.context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
 class MCELL_OT_mol_viz_set_index(bpy.types.Operator):
@@ -396,7 +396,7 @@ class MCELL_OT_mol_viz_set_index(bpy.types.Operator):
     def execute(self, context):
         global global_mol_file_list
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 #        if mcell.mol_viz.mol_file_list:
         if global_mol_file_list:
             i = mcell.mol_viz.mol_file_index
@@ -434,7 +434,7 @@ def mol_viz_toggle_manual_select(self, context):
     """ Toggle the option to manually load viz data. """
     global global_mol_file_list
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
 
     mcell.mol_viz.mol_file_dir = ""
     mcell.mol_viz.mol_file_name = ""
@@ -470,7 +470,7 @@ def get_mol_file_dir():
 # Note: why is self here? This isn't a class method...
 def mol_viz_update(self, context):
     """ Clear the old viz data. Draw the new viz data. """
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
 
     if global_mol_file_list:
         if mcell.mol_viz.mol_file_index > len(global_mol_file_list) or mcell.mol_viz.mol_file_index < 0:
@@ -635,7 +635,7 @@ def old_mol_viz_file_read(mcell_prop, filepath):
         # Get the parent object to all the molecule positions if it exists.
         # Otherwise, create it.
         mols_obj = bpy.data.objects.get("molecules")
-        if not mols_obj:
+        if mols_obj is None:
             bpy.ops.object.add(location=[0, 0, 0])
             mols_obj = bpy.context.selected_objects[0]
             mols_obj.name = "molecules"
@@ -1126,7 +1126,7 @@ def mol_viz_file_read(mcell, filepath):
                 # Look-up mesh to hold instances of molecule positions, create if needed
                 mol_pos_mesh_name = "%s_pos" % (mol_name)
                 mol_pos_mesh = meshes.get(mol_pos_mesh_name)
-                if not mol_pos_mesh:
+                if mol_pos_mesh is None:
                     mol_pos_mesh = meshes.new(mol_pos_mesh_name)
 
                 # Add and set values of vertices at positions of molecules
@@ -1138,16 +1138,24 @@ def mol_viz_file_read(mcell, filepath):
                 mol_pos_mesh.vertices.foreach_set("normal", mol_orient)
                 '''
 
+                # Add molecule positions as vertices to the mesh
+                mol_pos_mesh.vertices.add(len(mol_pos)//3)  # replaces old vertices with new vertices
+                mol_pos_mesh.vertices.foreach_set("co", mol_pos)
+
                 use_orient = mol.glyph_orientation
 
+                '''
+                # without geometry nodes, better way to set orientations for vol and surf molecules differently
                 if use_orient:
                   if mol_type == 0:
                     mol_orient.extend([random.uniform(
                         -1.0, 1.0) for i in range(len(mol_pos))])
                   bm = bmesh.new()
                   set_mol_orientation(bm, mol_pos, mol_orient)
+                '''
 
                 '''
+                # without geometry nodes, alternative way to set orientations for vol and surf molecules differently
                 if mol_type == 0:
                   if use_vol_orient:
                     use_orient = True
@@ -1163,12 +1171,21 @@ def mol_viz_file_read(mcell, filepath):
                     set_mol_orientation(bm, mol_pos, mol_orient)
                 '''
 
+                '''
+                # without geometry nodes, create mesh
                 if use_orient:
                   bm.to_mesh(mol_pos_mesh)
                   bm.free()
                 else:
                   mol_pos_mesh.vertices.add(len(mol_pos)//3)
                   mol_pos_mesh.vertices.foreach_set("co", mol_pos)
+                '''
+
+                # with geomtery nodes, add a custom attribute named "mol_orient" to the mol_pos_mesh to hold the molecule orientations
+                mol_orient_attr = mol_pos_mesh.attributes.get('mol_orient')
+                if mol_orient_attr is None:
+                  mol_orient_attr = mol_pos_mesh.attributes.new('mol_orient', type='FLOAT_VECTOR', domain='POINT')
+                mol_orient_attr.data.foreach_set('vector', mol_orient)
 
 
                 if mcell.cellblender_preferences.debug_level > 100:
@@ -1183,9 +1200,15 @@ def mol_viz_file_read(mcell, filepath):
                 else:
                     hide = False
 
-                # Create object to contain the mol_pos_mesh data
+                # Create object to contain the mol_pos_mesh data and associate object with geometry node
                 mol_obj = objs.new(mol_name, mol_pos_mesh)
                 scn_objs.link(mol_obj)
+                bpy.context.view_layer.objects.active = mol_obj
+                bpy.ops.object.modifier_add(type='NODES')
+                mol_obj.modifiers['GeometryNodes'].node_group = bpy.data.node_groups['mol_orient_node']
+                mol_obj.select_set(False)
+
+                '''
                 mol_shape_obj.parent = mol_obj
                 if use_orient:
                   mol_obj.instance_type = 'FACES'
@@ -1195,6 +1218,8 @@ def mol_viz_file_read(mcell, filepath):
                   mol_obj.use_instance_vertices_rotation = False
                 mol_obj.show_instancer_for_viewport = False
                 mol_obj.show_instancer_for_render = False
+                '''
+
                 mol_obj.parent = mols_obj
                 mol_obj.hide_select = True
 
@@ -1263,7 +1288,7 @@ class MCELL_UL_visualization_export_list(bpy.types.UIList):
 
         # Don't bother showing individual export option if the user has already
         # asked to export everything
-        if not context.scene.mcell.viz_output.export_all:
+        if not bpy.context.scene.mcell.viz_output.export_all:
             layout.prop(item, "export_viz", text="Export")
 
 
@@ -1290,7 +1315,7 @@ class MCellFloatVectorProperty(bpy.types.PropertyGroup):
 
 def generate_choices_callback(self, context):
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     data_layout = mcell.mol_viz['data_layout']
 
     #print ( "generate_choices_callback called with a self of " + str(self) )
@@ -1311,11 +1336,11 @@ def generate_choices_callback(self, context):
 
 def select_test_case_callback(self, context):
     # Build the path starting from output_data
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     mol_viz = mcell.mol_viz
     data_layout = mcell.mol_viz['data_layout']
     bpy.ops.mcell.update_data_layout()
-    mcell.model_objects.update_scene(context.scene, force=True)
+    mcell.model_objects.update_scene(bpy.context.scene, force=True)
     bpy.ops.mcell.read_viz_data()
 
 class DynamicChoicePropGroup(bpy.types.PropertyGroup):
@@ -1351,7 +1376,7 @@ class MCELL_OT_viz_script_refresh(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mv = context.scene.mcell.mol_viz
+        mv = bpy.context.scene.mcell.mol_viz
         # check_scripting(self, context)
         update_available_viz_scripts ( mv )
         return {'FINISHED'}
@@ -1620,7 +1645,7 @@ class MCellMolVizPropertyGroup(bpy.types.PropertyGroup):
         preserve the settings when the structure hasn't changed.
         """
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         files_path = mcell_files_path()  # This will include the "mcell" on the end
 
@@ -1674,7 +1699,7 @@ class MCellMolVizPropertyGroup(bpy.types.PropertyGroup):
                         choice['values'] = data_layout[i][1]
 
     def draw_layout(self, context, layout):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )
         else:
@@ -1694,7 +1719,7 @@ class MCellMolVizPropertyGroup(bpy.types.PropertyGroup):
             if self.viz_code in [ 'custom', 'both' ]:
               row = layout.row()
               row.prop_search ( self, "internal_viz_file_name",
-                                context.scene.mcell.mol_viz, "internal_viz_scripts_list",
+                                bpy.context.scene.mcell.mol_viz, "internal_viz_scripts_list",
                                 text="File:", icon='TEXT' )
               row.operator("mcell.viz_script_refresh", icon='FILE_REFRESH', text="")
 
@@ -1816,7 +1841,7 @@ class MCellVizOutputPropertyGroup(bpy.types.PropertyGroup):
 
     def draw_layout ( self, context, layout ):
         """ Draw the reaction output "panel" within the layout """
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )

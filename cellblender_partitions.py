@@ -52,7 +52,7 @@ class MCELL_OT_create_partitions_object(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        scene = context.scene
+        scene = bpy.context.scene
         scene_objs = scene.objects
         objs = bpy.data.objects
         meshes = bpy.data.meshes
@@ -70,7 +70,7 @@ class MCELL_OT_create_partitions_object(bpy.types.Operator):
             bpy.ops.mesh.primitive_cube_add()
             partition_object = bpy.context.active_object
             # Restore selections and mode
-            context.view_layer.objects.active = active_object
+            bpy.context.view_layer.objects.active = active_object
             for obj in selected_objs:
                 obj.select_set(True)
             if active_object:
@@ -86,7 +86,7 @@ class MCELL_OT_create_partitions_object(bpy.types.Operator):
             partition_mesh = partition_object.data
             partition_mesh.name = "partitions"
             
-            if context.scene.mcell.cellblender_preferences.mcell4_mode:
+            if bpy.context.scene.mcell.cellblender_preferences.mcell4_mode:
                 transform_all_axes_partition_boundary(self, context)
             else:
                 transform_x_partition_boundary(self, context)
@@ -103,8 +103,8 @@ class MCELL_OT_remove_partitions_object(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        scene = context.scene
-        scene_objects = context.scene.collection.children[0].objects
+        scene = bpy.context.scene
+        scene_objects = bpy.context.scene.collection.children[0].objects
         objects = bpy.data.objects
         meshes = bpy.data.meshes
         if "partitions" in scene_objects:
@@ -125,7 +125,7 @@ class MCELL_OT_auto_generate_boundaries(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell4_mode = mcell.cellblender_preferences.mcell4_mode
         partitions = mcell.partitions
         object_list = mcell.model_objects.object_list
@@ -186,7 +186,7 @@ class MCELL_OT_auto_generate_boundaries(bpy.types.Operator):
 def transform_x_partition_boundary(self, context):
     """ Transform the partition object along the x-axis. """
 
-    partitions = context.scene.mcell.partitions
+    partitions = bpy.context.scene.mcell.partitions
     x_start = partitions.x_start
     x_end = partitions.x_end
     x_step = partitions.x_step
@@ -198,7 +198,7 @@ def transform_x_partition_boundary(self, context):
 def transform_y_partition_boundary(self, context):
     """ Transform the partition object along the y-axis. """
 
-    partitions = context.scene.mcell.partitions
+    partitions = bpy.context.scene.mcell.partitions
     y_start = partitions.y_start
     y_end = partitions.y_end
     y_step = partitions.y_step
@@ -210,7 +210,7 @@ def transform_y_partition_boundary(self, context):
 def transform_z_partition_boundary(self, context):
     """ Transform the partition object along the z-axis. """
 
-    partitions = context.scene.mcell.partitions
+    partitions = bpy.context.scene.mcell.partitions
     z_start = partitions.z_start
     z_end = partitions.z_end
     z_step = partitions.z_step
@@ -221,7 +221,7 @@ def transform_z_partition_boundary(self, context):
 
 def transform_all_axes_partition_boundary(self, context):
     """ Transform the partition object along all axes """
-    partitions = context.scene.mcell.partitions
+    partitions = bpy.context.scene.mcell.partitions
     start = partitions.start
     end = partitions.end
     step = partitions.step
@@ -260,7 +260,7 @@ def transform_partition_boundary(self, context, start, end, xyz_index):
 def check_x_partition_step(self, context):
     """ Make sure the partition's step along the x-axis is valid. """
 
-    partitions = context.scene.mcell.partitions
+    partitions = bpy.context.scene.mcell.partitions
     if not partitions.recursion_flag:
         partitions.recursion_flag = True
         x_start = partitions.x_start
@@ -274,7 +274,7 @@ def check_x_partition_step(self, context):
 def check_y_partition_step(self, context):
     """ Make sure the partition's step along the y-axis is valid. """
 
-    partitions = context.scene.mcell.partitions
+    partitions = bpy.context.scene.mcell.partitions
     if not partitions.recursion_flag:
         partitions.recursion_flag = True
         y_start = partitions.y_start
@@ -288,7 +288,7 @@ def check_y_partition_step(self, context):
 def check_z_partition_step(self, context):
     """ Make sure the partition's step along the z-axis is valid. """
 
-    partitions = context.scene.mcell.partitions
+    partitions = bpy.context.scene.mcell.partitions
     if not partitions.recursion_flag:
         partitions.recursion_flag = True
         z_start = partitions.z_start
@@ -302,7 +302,7 @@ def check_z_partition_step(self, context):
 def check_all_axes_partition_step(self, context):
     """ Make sure the partition's step is valid. """
 
-    partitions = context.scene.mcell.partitions
+    partitions = bpy.context.scene.mcell.partitions
     if not partitions.recursion_flag:
         partitions.recursion_flag = True
         start = partitions.start
@@ -476,7 +476,7 @@ class MCellPartitionsPropertyGroup(bpy.types.PropertyGroup):
 
     def build_properties_from_data_model ( self, context, dm ):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell4_mode = mcell.cellblender_preferences.mcell4_mode
         
         if dm['data_model_version'] != "DM_2016_04_15_1600":
@@ -510,7 +510,7 @@ class MCellPartitionsPropertyGroup(bpy.types.PropertyGroup):
         print ( "Removing all Partition Properties... no collections to remove." )
 
     def draw_layout(self, context, layout):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell4_mode = mcell.cellblender_preferences.mcell4_mode
 
         if not mcell.initialized:

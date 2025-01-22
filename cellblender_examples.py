@@ -312,7 +312,7 @@ class MCELL_OT_load_pbc(bpy.types.Operator):
         view_all()
         
         # this is set when data model is imported but not for examples
-        cellblender_preferences = context.scene.mcell.cellblender_preferences        
+        cellblender_preferences = bpy.context.scene.mcell.cellblender_preferences        
         cellblender_preferences.mcell4_mode = False
         cellblender_preferences.bionetgen_mode = False
 
@@ -414,7 +414,7 @@ class MCELL_OT_load_shape_key_dyn_geo(bpy.types.Operator):
         # Select the Cube object (created by the data model)
         obj = bpy.data.objects['Cube']
         obj.select_set(True)
-        context.view_layer.objects.active = obj
+        bpy.context.view_layer.objects.active = obj
 
         # Remove all previous shape keys (otherwise this can't be run twice!!)
 
@@ -508,7 +508,7 @@ class MCELL_OT_load_shape_key_dyn_geo(bpy.types.Operator):
         bpy.ops.mesh.select_all(action='DESELECT')
 
         # Move the top 4 points when on "Key 1" (the default key after the previous adds)
-        obj = context.object
+        obj = bpy.context.object
         mesh = obj.data
         bm = bmesh.from_edit_mesh(mesh)
         bm.verts.ensure_lookup_table()
@@ -525,23 +525,23 @@ class MCELL_OT_load_shape_key_dyn_geo(bpy.types.Operator):
         bpy.ops.object.mode_set ( mode="OBJECT" )
 
         # Default frame_start is 1, set to 0 to match shape key assignments
-        context.scene.frame_start = 0
+        bpy.context.scene.frame_start = 0
 
         # Assign the shape keys to complete one cycle every 100 frames
-        context.scene.frame_current = 0
+        bpy.context.scene.frame_current = 0
         key_to_modify.key_blocks["Key 1"].value = 0.0
         mesh.shape_keys.key_blocks['Key 1'].keyframe_insert(data_path='value')
 
-        context.scene.frame_current = 100
+        bpy.context.scene.frame_current = 100
         key_to_modify.key_blocks["Key 1"].value = 1.0
         mesh.shape_keys.key_blocks['Key 1'].keyframe_insert(data_path='value')
 
-        context.scene.frame_current = 200
+        bpy.context.scene.frame_current = 200
         key_to_modify.key_blocks["Key 1"].value = 0.0
         mesh.shape_keys.key_blocks['Key 1'].keyframe_insert(data_path='value')
 
         # Set the frame to 50 (large cube) so the view all operator will fit at max size
-        context.scene.frame_current = 100
+        bpy.context.scene.frame_current = 100
 
         # Switch area type to set the F-Curve modifier to "CYCLES"
         area = bpy.context.area
@@ -551,13 +551,13 @@ class MCELL_OT_load_shape_key_dyn_geo(bpy.types.Operator):
         area.type = old_type
 
         # Set the view to show the selected object
-        context.view_layer.update()
+        bpy.context.view_layer.update()
         view_all()
         # Return the current frame to 0 (small cube) after viewing large cube
-        context.scene.frame_current = 0
+        bpy.context.scene.frame_current = 0
 
         # this is set when data model is imported but not for examples
-        cellblender_preferences = context.scene.mcell.cellblender_preferences        
+        cellblender_preferences = bpy.context.scene.mcell.cellblender_preferences        
         cellblender_preferences.mcell4_mode = False
         cellblender_preferences.bionetgen_mode = False
 
@@ -577,14 +577,14 @@ class MCELL_OT_load_scripted_dyn_geo(bpy.types.Operator):
         cellblender.replace_data_model(dm, geometry=True, scripts=True)
 
         # Default frame_start is 1, set to 0 to match model
-        context.scene.frame_start = 0
-        context.view_layer.update()
+        bpy.context.scene.frame_start = 0
+        bpy.context.view_layer.update()
 
         # Set the frame to 50 (large cube) so the view all operator will fit at max size (not really needed for scripting)
-        context.scene.frame_current = 50
+        bpy.context.scene.frame_current = 50
 
         # Set the view to show the selected object
-        context.view_layer.update()
+        bpy.context.view_layer.update()
 
         # Add a cube tepmorarily to use for centering the view
         bpy.ops.mesh.primitive_cube_add()
@@ -599,13 +599,13 @@ class MCELL_OT_load_scripted_dyn_geo(bpy.types.Operator):
 
         # Re-select the original cube
         bpy.data.objects['Cube'].select_set(True)
-        context.view_layer.objects.active = bpy.data.objects['Cube']      # This makes it active for material display etc
+        bpy.context.view_layer.objects.active = bpy.data.objects['Cube']      # This makes it active for material display etc
 
         # Return the current frame to 0 (small cube) after viewing large cube (not really needed for scripting)
-        context.scene.frame_current = 0
+        bpy.context.scene.frame_current = 0
 
         # this is set when data model is imported but not for examples
-        cellblender_preferences = context.scene.mcell.cellblender_preferences        
+        cellblender_preferences = bpy.context.scene.mcell.cellblender_preferences        
         cellblender_preferences.mcell4_mode = False
         cellblender_preferences.bionetgen_mode = False
 
@@ -625,14 +625,14 @@ class MCELL_OT_load_dyn_geo_cc(bpy.types.Operator):
         cellblender.replace_data_model(dm, geometry=True, scripts=True)
 
         # Default frame_start is 1, set to 0 to match model
-        context.scene.frame_start = 0
-        context.view_layer.update()
+        bpy.context.scene.frame_start = 0
+        bpy.context.view_layer.update()
 
         # Set the frame to 50 (large cube) so the view all operator will fit at max size (not really needed for scripting)
-        context.scene.frame_current = 50
+        bpy.context.scene.frame_current = 50
 
         # Set the view to show the selected object
-        context.view_layer.update()
+        bpy.context.view_layer.update()
 
         # Add a cube tepmorarily to use for centering the view
         bpy.ops.mesh.primitive_cube_add()
@@ -647,13 +647,13 @@ class MCELL_OT_load_dyn_geo_cc(bpy.types.Operator):
 
         # Re-select the original cube
         bpy.data.objects['Cube'].select_set(True)
-        context.view_layer.objects.active = bpy.data.objects['Cube']      # This makes it active for material display etc
+        bpy.context.view_layer.objects.active = bpy.data.objects['Cube']      # This makes it active for material display etc
 
         # Return the current frame to 0 (small cube) after viewing large cube (not really needed for scripting)
-        context.scene.frame_current = 0
+        bpy.context.scene.frame_current = 0
 
         # this is set when data model is imported but not for examples
-        cellblender_preferences = context.scene.mcell.cellblender_preferences        
+        cellblender_preferences = bpy.context.scene.mcell.cellblender_preferences        
         cellblender_preferences.mcell4_mode = False
         cellblender_preferences.bionetgen_mode = False
 
@@ -693,7 +693,7 @@ class MCELL_OT_load_dynamic_geometry(bpy.types.Operator):
         view_all()
         
         # this is set when data model is imported but not for examples
-        cellblender_preferences = context.scene.mcell.cellblender_preferences        
+        cellblender_preferences = bpy.context.scene.mcell.cellblender_preferences        
         cellblender_preferences.mcell4_mode = False
         cellblender_preferences.bionetgen_mode = False
 
@@ -704,7 +704,7 @@ class MCELL_OT_load_dynamic_geometry(bpy.types.Operator):
 class CellBlenderExamplesPropertyGroup(bpy.types.PropertyGroup):
 
     def draw_layout(self, context, layout):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )

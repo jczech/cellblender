@@ -57,7 +57,7 @@ class MCELL_OT_meshalyzer(bpy.types.Operator):
 
     def count_components(self,context):
         bpy.ops.object.mode_set(mode='OBJECT')
-        obj = context.active_object
+        obj = bpy.context.active_object
         mesh = obj.data
 
         bpy.ops.object.mode_set(mode='EDIT')
@@ -99,8 +99,8 @@ class MCELL_OT_meshalyzer(bpy.types.Operator):
 
     def execute(self, context):
 
-        mcell = context.scene.mcell
-        objs = context.selected_objects
+        mcell = bpy.context.scene.mcell
+        objs = bpy.context.selected_objects
 
         mcell.meshalyzer.object_name = ""
         mcell.meshalyzer.vertices = 0
@@ -199,8 +199,8 @@ class MCELL_OT_gen_meshalyzer_report(bpy.types.Operator):
 
     def execute(self,context):
 
-        mcell = context.scene.mcell
-        objs = context.selected_objects
+        mcell = bpy.context.scene.mcell
+        objs = bpy.context.selected_objects
 
         mcell.meshalyzer.object_name = ''
         mcell.meshalyzer.vertices = 0
@@ -393,8 +393,8 @@ class MCELL_PT_meshalyzer(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        scn = context.scene
-        mcell = context.scene.mcell
+        scn = bpy.context.scene
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( self.layout )

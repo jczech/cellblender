@@ -47,7 +47,7 @@ from . import cellblender_utils
 
 def check_mcell_binary(self, context):
     """Callback to check for mcell executable"""
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     binary_path = mcell.cellblender_preferences.mcell_binary
     mcell.cellblender_preferences.mcell_binary_valid = cellblender_utils.is_executable(binary_path)
     if not mcell.cellblender_preferences.mcell_binary_valid:
@@ -57,7 +57,7 @@ def check_mcell_binary(self, context):
 
 def check_python_binary(self, context):
     """Callback to check for python executable"""
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     binary_path = mcell.cellblender_preferences.python_binary
     mcell.cellblender_preferences.python_binary_valid = cellblender_utils.is_executable(binary_path)
     bpy.ops.mcell.preferences_save(name='Cb')
@@ -65,7 +65,7 @@ def check_python_binary(self, context):
 
 def check_bionetgen_location(self, context):
     """Callback to check for mcell executable"""
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     application_path = mcell.cellblender_preferences.bionetgen_location
     mcell.cellblender_preferences.bionetgen_location_valid = cellblender_utils.is_executable(application_path)
     bpy.ops.mcell.preferences_save(name='Cb')
@@ -159,7 +159,7 @@ def show_hide_scene_panel ( show=True ):
 def set_old_scene_panels_callback(self, context):
     """ Show or hide the old scene panels based on the show_old_scene_panels boolean property. """
     print ( "Toggling the old scene panels" )
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     prefs = mcell.cellblender_preferences
     if (prefs.show_scene_panel or prefs.show_tool_panel):
         # One of the other panels is showing, so it's OK to toggle
@@ -173,7 +173,7 @@ def set_old_scene_panels_callback(self, context):
 def set_scene_panel_callback(self, context):
     """ Show or hide the scene panel based on the show_scene_panel boolean property. """
     print ( "Toggling the scene panel" )
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     prefs = mcell.cellblender_preferences
     if (prefs.show_old_scene_panels or prefs.show_tool_panel):
         # One of the other panels is showing, so it's OK to toggle
@@ -187,7 +187,7 @@ def set_scene_panel_callback(self, context):
 def set_tool_panel_callback(self, context):
     """ Show or hide the tool panel based on the show_tool_panel boolean property. """
     print ( "Toggling the tool panels" )
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     prefs = mcell.cellblender_preferences
     if (prefs.show_old_scene_panels or prefs.show_scene_panel):
         # One of the other panels is showing, so it's OK to toggle
@@ -305,7 +305,7 @@ class MCELL_OT_reset_preferences(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell.cellblender_preferences.mcell_binary = ""
         mcell.cellblender_preferences.python_binary = ""
         mcell.cellblender_preferences.bionetgen_location = ""
@@ -329,12 +329,12 @@ class MCELL_OT_set_mcell_binary(bpy.types.Operator):
     filepath: StringProperty(subtype='FILE_PATH', default="")
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell.cellblender_preferences.mcell_binary = self.filepath
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        context.window_manager.fileselect_add(self)
+        bpy.context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
 
@@ -347,12 +347,12 @@ class MCELL_OT_set_python_binary(bpy.types.Operator):
     filepath: StringProperty(subtype='FILE_PATH', default="")
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell.cellblender_preferences.python_binary = self.filepath
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        context.window_manager.fileselect_add(self)
+        bpy.context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
 
@@ -366,12 +366,12 @@ class MCELL_OT_set_check_bionetgen_location(bpy.types.Operator):
     filepath: StringProperty(subtype='FILE_PATH', default="")
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell.cellblender_preferences.bionetgen_location = self.filepath
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        context.window_manager.fileselect_add(self)
+        bpy.context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
 
@@ -393,7 +393,7 @@ class MCELL_OT_black_theme(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        context.user_preferences.themes[0].view_3d.space.gradients.high_gradient = (0,0,0)
+        bpy.context.user_preferences.themes[0].view_3d.space.gradients.high_gradient = (0,0,0)
         return {'FINISHED'}
 
 
@@ -404,15 +404,15 @@ class MCELL_OT_white_theme(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        context.user_preferences.themes[0].view_3d.space.gradients.high_gradient = (1,1,1)
+        bpy.context.user_preferences.themes[0].view_3d.space.gradients.high_gradient = (1,1,1)
         return {'FINISHED'}
 
 
 def show_proxy_callback(self, context):
     # print ( "Glyph vis change callback for molecule " + self.name )
-    mcell_prefs = context.scene.mcell.cellblender_preferences
+    mcell_prefs = bpy.context.scene.mcell.cellblender_preferences
     proxy_names = [ "mol_volume_proxy", "mol_surface_proxy" ]
-    objs = context.scene.collection.children[0].objects
+    objs = bpy.context.scene.collection.children[0].objects
     for name in proxy_names:
       if name in objs:
         objs[name].hide = not mcell_prefs.show_mcellr_proxies
@@ -518,7 +518,7 @@ class CellBlenderPreferencesPropertyGroup(bpy.types.PropertyGroup):
 
 
     def draw_layout(self, context, layout):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )
@@ -666,13 +666,13 @@ class CellBlenderPreferencesPropertyGroup(bpy.types.PropertyGroup):
               row.label ( text="Blender File Preferences", icon="BLENDER" )
 
               row = box.row()
-              row.prop ( context.scene.world, "horizon_color", text="World Horizon" )
+              row.prop ( bpy.context.scene.world, "horizon_color", text="World Horizon" )
 
               row = box.row()
               col = row.column()
-              col.prop ( context.space_data, "show_world", text="Use World Background" )
+              col.prop ( bpy.context.space_data, "show_world", text="Use World Background" )
               col = row.column()
-              col.prop ( context.space_data, "show_only_render", text="Only Show Rendered" )
+              col.prop ( bpy.context.space_data, "show_only_render", text="Only Show Rendered" )
 
               row = box.row()
               col = row.column()
@@ -682,12 +682,12 @@ class CellBlenderPreferencesPropertyGroup(bpy.types.PropertyGroup):
 
               row = box.row()
               split = row.split(factor=0.55)
-              split.prop(context.space_data, "show_floor", text="Grid Floor")
+              split.prop(bpy.context.space_data, "show_floor", text="Grid Floor")
 
               row = split.row(align=True)
-              row.prop(context.space_data, "show_axis_x", text="X", toggle=True)
-              row.prop(context.space_data, "show_axis_y", text="Y", toggle=True)
-              row.prop(context.space_data, "show_axis_z", text="Z", toggle=True)
+              row.prop(bpy.context.space_data, "show_axis_x", text="X", toggle=True)
+              row.prop(bpy.context.space_data, "show_axis_y", text="Y", toggle=True)
+              row.prop(bpy.context.space_data, "show_axis_z", text="Z", toggle=True)
 
 
               box.separator()
@@ -703,19 +703,19 @@ class CellBlenderPreferencesPropertyGroup(bpy.types.PropertyGroup):
 
               row = box.row()
               col = row.column()
-              col.prop ( context.user_preferences.themes[0].view_3d.space.gradients, "high_gradient", text="Background Color" )
+              col.prop ( bpy.context.user_preferences.themes[0].view_3d.space.gradients, "high_gradient", text="Background Color" )
               col = row.column()
-              col.prop ( context.user_preferences.themes[0].view_3d, "wire", text="Wire Color (unselected)" )
+              col.prop ( bpy.context.user_preferences.themes[0].view_3d, "wire", text="Wire Color (unselected)" )
 
               row = box.row()
               row.prop(mcell.cellblender_preferences, "tab_autocomplete")
 
-              if "use_vertex_buffer_objects" in dir(context.user_preferences.system):
+              if "use_vertex_buffer_objects" in dir(bpy.context.user_preferences.system):
                   row = box.row()
-                  row.prop ( context.user_preferences.system, "use_vertex_buffer_objects", text="Enable Vertex Buffer Objects" )
+                  row.prop ( bpy.context.user_preferences.system, "use_vertex_buffer_objects", text="Enable Vertex Buffer Objects" )
 
               row = box.row()
-              row.prop ( context.user_preferences.inputs, "view_rotate_method" )
+              row.prop ( bpy.context.user_preferences.inputs, "view_rotate_method" )
 
               row = box.row()
               row.operator ( "wm.save_userpref", text="Save Blender Global Preferences" )

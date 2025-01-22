@@ -158,7 +158,7 @@ class MCellLegacyGroup(bpy.types.PropertyGroup):
         # Remove the RNA properties overlaying the ID Property 'mcell'
         del bpy.types.Scene.mcell
         
-        mcell = context.scene.get('mcell')
+        mcell = bpy.context.scene.get('mcell')
         if mcell != None:
 
           # There's an mcell in the scene
@@ -854,7 +854,7 @@ class MCellLegacyGroup(bpy.types.PropertyGroup):
         #dm.pop('geometrical_objects')
         #dm.pop('materials')
 
-        #self.print_id_property_tree ( context.scene['mcell'], 'mcell', 0 )
+        #self.print_id_property_tree ( bpy.context.scene['mcell'], 'mcell', 0 )
 
         # Restore the RNA properties overlaying the ID Property 'mcell'
         bpy.types.Scene.mcell: PointerProperty(type=cellblender.cellblender_main.MCellPropertyGroup)

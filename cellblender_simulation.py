@@ -283,7 +283,7 @@ class MCELL_OT_page_overlay_hm (bpy.types.Operator):
 
 def run_generic_runner (context, sim_module):
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     mcell.run_simulation.last_simulation_run_time = str(time.time())
 
     binary_path = mcell.cellblender_preferences.mcell_binary
@@ -389,7 +389,7 @@ class MCELL_OT_dm_export_mdl(bpy.types.Operator):
     @classmethod
     def poll(self,context):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         if mcell.cellblender_preferences.lockout_export and mcell.cellblender_preferences.decouple_export_run:
             # print ( "Exporting is currently locked out. See the Preferences/ExtraOptions panel." )
             # The "self" here doesn't contain or permit the report function.
@@ -402,7 +402,7 @@ class MCELL_OT_dm_export_mdl(bpy.types.Operator):
 
     def execute(self, context):
         print ( "Export via data model" )
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         run_sim = mcell.run_simulation
         run_sim.export_requested = True
         run_sim.run_requested = False
@@ -427,7 +427,7 @@ class MCELL_OT_run_simulation(bpy.types.Operator):
     @classmethod
     def poll(self,context):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         if mcell.cellblender_preferences.lockout_export and (not mcell.cellblender_preferences.decouple_export_run):
             # print ( "Exporting is currently locked out. See the Preferences/ExtraOptions panel." )
             # The "self" here doesn't contain or permit the report function.
@@ -470,7 +470,7 @@ class MCELL_OT_run_simulation(bpy.types.Operator):
 
     def execute(self, context):
         print ( "Call to \"execute\" for MCELL_OT_run_simulation operator" )
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         ps = mcell.parameter_system
         run_sim = mcell.run_simulation
         run_sim.last_simulation_run_time = str(time.time())
@@ -505,9 +505,9 @@ class MCELL_OT_run_simulation(bpy.types.Operator):
             ###   In that case, the project name was still defaulted to "cellblender_project".
 
             # Filter or replace problem characters (like space, ...)
-            scene_name = context.scene.name.replace(" ", "_")
+            scene_name = bpy.context.scene.name.replace(" ", "_")
             # Change the actual scene name to the legal MCell Name
-            context.scene.name = scene_name
+            bpy.context.scene.name = scene_name
             # Set this for now to have it hopefully propagate until base_name can
             # be removed
             mcell.project_settings.base_name = scene_name
@@ -543,7 +543,7 @@ class MCELL_OT_run_simulation_control_sweep (bpy.types.Operator):
 
         print("Executing Sweep Runner")
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         run_sim = mcell.run_simulation
 
         run_sim.last_simulation_run_time = str(time.time())
@@ -575,7 +575,7 @@ class MCELL_OT_run_simulation_control_sweep (bpy.types.Operator):
                 data_model.save_data_model_to_json_file ( mcell_dm, os.path.join(project_dir,"data_model.json") )
 
                 # base_name = mcell.project_settings.base_name
-                base_name = context.scene.name.replace(" ", "_")
+                base_name = bpy.context.scene.name.replace(" ", "_")
 
                 error_file_option = run_sim.error_file
                 log_file_option = run_sim.log_file
@@ -656,7 +656,7 @@ class MCELL_OT_percentage_done_timer(bpy.types.Operator):
         if event.type == 'TIMER':
             task_len = len(cellblender.simulation_queue.task_dict)
             task_ctr = 0
-            mcell = context.scene.mcell
+            mcell = bpy.context.scene.mcell
             if mcell.run_simulation.print_timer_ticks:
                 print ( "modal -=-=-=-=" + (50 * "-=" ) + "-" )
             processes_list = mcell.run_simulation.processes_list
@@ -687,7 +687,7 @@ class MCELL_OT_percentage_done_timer(bpy.types.Operator):
                     simulation_process.name = "PID: %d, Seed: %d, %d%%" % (pid, seed, percent)
 
             # just a silly way of forcing a screen update. ¯\_(ツ)_/¯
-            color = context.preferences.themes[0].view_3d.empty
+            color = bpy.context.preferences.themes[0].view_3d.empty
             color[0] += 0.01
             color[0] -= 0.01
             # if every MCell job is done, quit updating the screen
@@ -699,17 +699,17 @@ class MCELL_OT_percentage_done_timer(bpy.types.Operator):
 
     def execute(self, context):
         print ( "Inside MCELL_OT_percentage_done_timer.execute with context = " + str(context) )
-        print ( "Inside MCELL_OT_percentage_done_timer.execute with mcell = " + str(context.scene.mcell) )
-        run_sim = context.scene.mcell.run_simulation
+        print ( "Inside MCELL_OT_percentage_done_timer.execute with mcell = " + str(bpy.context.scene.mcell) )
+        run_sim = bpy.context.scene.mcell.run_simulation
         delay = run_sim.text_update_timer_delay   # this is how often we should update this in seconds
         print ( "Setting timer to delay of " + str(delay) )
-        wm = context.window_manager
-        self._timer = wm.event_timer_add(time_step=delay, window=context.window)
+        wm = bpy.context.window_manager
+        self._timer = wm.event_timer_add(time_step=delay, window=bpy.context.window)
         wm.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
     def cancel(self, context):
-        wm = context.window_manager
+        wm = bpy.context.window_manager
         wm.event_timer_remove(self._timer)
 
 
@@ -723,7 +723,7 @@ class MCELL_OT_run_simulation_sweep_queue(bpy.types.Operator):
     def execute(self, context):
         print ( "+++++++++++++ Begin: mcell.run_simulation_sweep_queue +++++++++++++" )
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         run_sim = mcell.run_simulation
         
         mcell4_mode = mcell.cellblender_preferences.mcell4_mode
@@ -793,7 +793,7 @@ class MCELL_OT_run_simulation_sweep_queue(bpy.types.Operator):
 
                 # This assumes "mcell.export_project" operator had been run:   base_name = mcell.project_settings.base_name
                 # Do this here since "mcell.export_project" is not being used with this code.
-                base_name = scene_name = context.scene.name.replace(" ", "_")
+                base_name = scene_name = bpy.context.scene.name.replace(" ", "_")
 
                 if run_sim.export_requested:
                     # The export checking logic is broken for sweep runs that don't have a main MDL file at the top.
@@ -900,7 +900,7 @@ class MCELL_OT_run_simulation_sweep_queue(bpy.types.Operator):
                             else:
                                 print ( "Writing data model as MDL at " + str(os.path.join(sweep_item_path, '%s.main.mdl' % (base_name) )) )
                                 cellblender.current_data_model = {'mcell':dm} # this creates two mcell levels: mcell: { mcell: {
-                                data_model_to_mdl.write_mdl ( cellblender.current_data_model, os.path.join(sweep_item_path, '%s.main.mdl' % (base_name) ), scene_name=context.scene.name )
+                                data_model_to_mdl.write_mdl ( cellblender.current_data_model, os.path.join(sweep_item_path, '%s.main.mdl' % (base_name) ), scene_name=bpy.context.scene.name )
                             
                         run_cmd_list.append ( [mcell_binary, sweep_item_path, base_name, error_file_option, log_file_option, seed] )
                     # Increment the current_index counters from rightmost side (deepest directory)
@@ -1038,7 +1038,7 @@ class MCELL_OT_run_simulation_control_sweep_sge (bpy.types.Operator):
 
         print("Executing Grid Engine Sweep Runner")
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         run_sim = mcell.run_simulation
 
         run_sim.last_simulation_run_time = str(time.time())
@@ -1192,7 +1192,7 @@ class MCELL_OT_run_simulation_control_normal(bpy.types.Operator):
 
     def execute(self, context):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         run_sim = mcell.run_simulation
 
         run_sim.last_simulation_run_time = str(time.time())
@@ -1294,7 +1294,7 @@ class MCELL_OT_run_simulation_control_queue(bpy.types.Operator):
 
     def execute(self, context):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         run_sim = mcell.run_simulation
 
         run_sim.last_simulation_run_time = str(time.time())
@@ -1419,7 +1419,7 @@ class MCELL_OT_kill_simulation(bpy.types.Operator):
 
     @classmethod
     def poll(self,context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         processes_list = mcell.run_simulation.processes_list
         active_index = mcell.run_simulation.active_process_index
         if active_index < len(processes_list):
@@ -1432,7 +1432,7 @@ class MCELL_OT_kill_simulation(bpy.types.Operator):
 
     def execute(self, context):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         processes_list = mcell.run_simulation.processes_list
         active_index = mcell.run_simulation.active_process_index
@@ -1465,7 +1465,7 @@ class MCELL_OT_kill_all_simulations(bpy.types.Operator):
                 return True
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         processes_list = mcell.run_simulation.processes_list
 
         for p_item in processes_list:
@@ -1499,7 +1499,7 @@ class MCELL_OT_run_simulation_dynamic(bpy.types.Operator):
         global active_engine_module
         global active_runner_module
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         status = ""
 
@@ -1802,7 +1802,7 @@ class MCELL_OT_refresh_sge_list(bpy.types.Operator):
 
     def execute(self, context):
         print ( "Refreshing the SGE execution host list" )
-        run_sim = context.scene.mcell.run_simulation
+        run_sim = bpy.context.scene.mcell.run_simulation
         if len(run_sim.sge_host_name) <= 0:
             print ( "Error: SGE Submit Host name is empty" )
         else:
@@ -1861,7 +1861,7 @@ class MCELL_OT_select_all_computers(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        run_sim = context.scene.mcell.run_simulation
+        run_sim = bpy.context.scene.mcell.run_simulation
         computer_list = run_sim.computer_list
         for computer in computer_list:
             computer.selected = True
@@ -1874,7 +1874,7 @@ class MCELL_OT_deselect_all_computers(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        run_sim = context.scene.mcell.run_simulation
+        run_sim = bpy.context.scene.mcell.run_simulation
         computer_list = run_sim.computer_list
         for computer in computer_list:
             computer.selected = False
@@ -1888,7 +1888,7 @@ class MCELL_OT_kill_all_users_jobs(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        run_sim = context.scene.mcell.run_simulation
+        run_sim = bpy.context.scene.mcell.run_simulation
         sge = sge_interface()
         sge.kill_all_users_jobs ( run_sim.sge_host_name, os.getlogin() );
         return {'FINISHED'}
@@ -1902,7 +1902,7 @@ class MCELL_OT_select_with_required(bpy.types.Operator):
 
     def execute(self, context):
         print ( "Selecting" )
-        run_sim = context.scene.mcell.run_simulation
+        run_sim = bpy.context.scene.mcell.run_simulation
         computer_list = run_sim.computer_list
         for computer in computer_list:
             #print ( "Computer " + str(computer.comp_name.split()[0]) + " selection = " + str(computer.selected) )
@@ -1949,7 +1949,7 @@ class MCELL_OT_clear_run_list(bpy.types.Operator):
                 return True
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         # The collection property of subprocesses
         processes_list = mcell.run_simulation.processes_list
         # A list holding actual subprocess objects
@@ -1993,7 +1993,7 @@ class MCELL_OT_clear_simulation_queue(bpy.types.Operator):
                 return True
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         # The collection property of subprocesses
         processes_list = mcell.run_simulation.processes_list
         # Class holding actual subprocess objects
@@ -2061,7 +2061,7 @@ def disable_python(context):
     #if not context:
     #    context = bpy.context
     #
-    # context.scene.mcell.run_simulation.enable_python_scripting = False
+    # bpy.context.scene.mcell.run_simulation.enable_python_scripting = False
 
     # Be sure to disable it in all other scenes as well
 
@@ -2096,7 +2096,7 @@ def clear_run_list(context):
     if not context:
         context = bpy.context
 
-    processes_list = context.scene.mcell.run_simulation.processes_list
+    processes_list = bpy.context.scene.mcell.run_simulation.processes_list
 
     if not cellblender.simulation_popen_list:
         processes_list.clear()
@@ -2108,7 +2108,7 @@ def clear_run_list(context):
 def sim_engine_changed_callback ( self, context ):
     """ The run lists are somewhat incompatible between sim runners, so just clear them when switching. """
     # print ( "Sim Runner has been changed!!" )
-    # mcell = context.scene.mcell
+    # mcell = bpy.context.scene.mcell
     bpy.ops.mcell.clear_run_list()
     bpy.ops.mcell.clear_simulation_queue()
 
@@ -2116,7 +2116,7 @@ def sim_engine_changed_callback ( self, context ):
 def sim_runner_changed_callback ( self, context ):
     """ The run lists are somewhat incompatible between sim runners, so just clear them when switching. """
     # print ( "Sim Runner has been changed!!" )
-    # mcell = context.scene.mcell
+    # mcell = bpy.context.scene.mcell
     # These sometimes create a Blender context exception.
     # The try/catch just ensures that both have a chance.
     try:
@@ -2134,7 +2134,7 @@ def sim_runner_changed_callback ( self, context ):
 def check_start_seed(self, context):
     """ Ensure start seed is always lte to end seed. """
 
-    run_sim = context.scene.mcell.run_simulation
+    run_sim = bpy.context.scene.mcell.run_simulation
 
     start_seed = int(run_sim.start_seed.get_value())
     end_seed = int(run_sim.end_seed.get_value())
@@ -2145,7 +2145,7 @@ def check_start_seed(self, context):
 def check_end_seed(self, context):
     """ Ensure end seed is always gte to start seed. """
     
-    run_sim = context.scene.mcell.run_simulation
+    run_sim = bpy.context.scene.mcell.run_simulation
     start_seed = int(run_sim.start_seed.get_value())
     end_seed = int(run_sim.end_seed.get_value())
 
@@ -2524,7 +2524,7 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
         self.start_seed.set_expr ( dm["start_seed"] )
         self.end_seed.set_expr ( dm["end_seed"] )
         self.run_limit.set_expr ( dm["run_limit"] )
-        context.scene.mcell.export_project.export_format = dm['export_format']
+        bpy.context.scene.mcell.export_project.export_format = dm['export_format']
         self.processes_list.clear()
 
         # The processes_list should not be restored from the data model
@@ -2579,7 +2579,7 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
 
     def draw_layout_run_once_dm_script ( self, context, layout ):
 
-        scripting = context.scene.mcell.scripting
+        scripting = bpy.context.scene.mcell.scripting
         #check_scripting(self, context)
         #update_available_scripts ( scripting )
 
@@ -2600,7 +2600,7 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
         if (self.internal_external == "internal"):
 
             col.prop_search ( self, "dm_run_once_internal_fn",
-                              context.scene.mcell.scripting, "internal_python_scripts_list",
+                              bpy.context.scene.mcell.scripting, "internal_python_scripts_list",
                               text="Upon Export", icon='TEXT' )
 
             col.operator("mcell.scripting_refresh", icon='FILE_REFRESH', text="")
@@ -2619,7 +2619,7 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
         pass
 
     def draw_layout_queue(self, context, layout):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )
@@ -2627,7 +2627,7 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
             ps = mcell.parameter_system
 
             # Filter or replace problem characters (like space, ...)
-            scene_name = context.scene.name.replace(" ", "_")
+            scene_name = bpy.context.scene.name.replace(" ", "_")
 
             # Set this for now to have it hopefully propagate until base_name can
             # be removed
@@ -3043,8 +3043,8 @@ class PLUGGABLE_OT_Reload(bpy.types.Operator):
     print ( "pluggable.reload.execute()" )
     engine_manager.plug_modules = None
     runner_manager.plug_modules = None
-    context.scene.mcell.sim_engines.plugs_changed_callback ( context )
-    context.scene.mcell.sim_runners.plugs_changed_callback ( context )
+    bpy.context.scene.mcell.sim_engines.plugs_changed_callback ( context )
+    bpy.context.scene.mcell.sim_runners.plugs_changed_callback ( context )
     return{'FINISHED'}
 
 
@@ -3056,7 +3056,7 @@ class PLUGGABLE_OT_Print(bpy.types.Operator):
     print ( "pluggable.print.execute()" )
     """
     global active_plug_module
-    ###???### pluggable = context.scene.Pluggable
+    ###???### pluggable = bpy.context.scene.Pluggable
     if active_plug_module == None:
       print ( "No active plug in module" )
     else:
@@ -3109,7 +3109,7 @@ class PLUGGABLE_OT_User(bpy.types.Operator):
             #print ( "Calling " + str(plugname) )
             active_engine_module.parameter_dictionary[str(plugname)]['val']()
             # Call plugs_changed_callback to force a reloading of properties from the parameter_dictionary
-            context.scene.mcell.sim_engines.plugs_changed_callback ( context )
+            bpy.context.scene.mcell.sim_engines.plugs_changed_callback ( context )
           else:
             print ( "This module does not support a function named " + str(self.user_function_name) )
       if modname == 'runners':
@@ -3120,7 +3120,7 @@ class PLUGGABLE_OT_User(bpy.types.Operator):
             #print ( "Calling " + str(plugname) )
             active_runner_module.parameter_dictionary[str(plugname)]['val']()
             # Call plugs_changed_callback to force a reloading of properties from the parameter_dictionary
-            context.scene.mcell.sim_runners.plugs_changed_callback ( context )
+            bpy.context.scene.mcell.sim_runners.plugs_changed_callback ( context )
           else:
             print ( "This module does not support a function named " + str(self.plugname) )
     else:
@@ -3313,7 +3313,7 @@ class Pluggable(bpy.types.PropertyGroup):
         selected_module_code = None
         active_sub_module = None
         set_name = None
-        if self == context.scene.mcell.sim_engines:
+        if self == bpy.context.scene.mcell.sim_engines:
           # print ( "Engines have changed!!" )
           if active_engine_module != None:
               if 'unregister_blender_classes' in dir(active_engine_module):
@@ -3328,7 +3328,7 @@ class Pluggable(bpy.types.PropertyGroup):
                       if 'register_blender_classes' in dir(active_engine_module):
                           active_engine_module.register_blender_classes()
                   break
-        if self == context.scene.mcell.sim_runners:
+        if self == bpy.context.scene.mcell.sim_runners:
           # print ( "Runners have changed!!" )
           if active_runner_module != None:
               if 'unregister_blender_classes' in dir(active_runner_module):
@@ -3422,14 +3422,14 @@ class Pluggable(bpy.types.PropertyGroup):
         engine_runner_label = ""
         engine_runner_key_name = ""
         engine_runner_options_showing = False
-        if self == context.scene.mcell.sim_engines:
+        if self == bpy.context.scene.mcell.sim_engines:
           #print ( "Drawing Engines" )
           active_module = active_engine_module
           this_module_name = "engines\t"
           engine_runner_label = "Simulate using:"
           engine_runner_key_name = "engines_show"
           engine_runner_options_showing = self.engines_show
-        if self == context.scene.mcell.sim_runners:
+        if self == bpy.context.scene.mcell.sim_runners:
           #print ( "Drawing Runners" )
           active_module = active_runner_module
           this_module_name = "runners\t"
@@ -3459,11 +3459,11 @@ class Pluggable(bpy.types.PropertyGroup):
 
         col = row.column()
         something_selected = False
-        if self == context.scene.mcell.sim_engines:
+        if self == bpy.context.scene.mcell.sim_engines:
           col.prop ( self, 'engines_enum' )
           if self.engines_enum != 'NONE':
             something_selected = True
-        if self == context.scene.mcell.sim_runners:
+        if self == bpy.context.scene.mcell.sim_runners:
           col.prop ( self, 'runners_enum' )
           if self.runners_enum != 'NONE':
             something_selected = True

@@ -109,7 +109,7 @@ bl_info = {
 
 def checked_print ( s ):
   context = bpy.context
-  mcell = context.scene.mcell
+  mcell = bpy.context.scene.mcell
   molmaker = mcell.molmaker
   if molmaker.print_debug:
     print ( s )
@@ -145,7 +145,7 @@ class MolMaker_OT_update_files(bpy.types.Operator):
   bl_options = {'REGISTER', 'UNDO'}
 
   def execute(self, context):
-    molmaker = context.scene.mcell.molmaker
+    molmaker = bpy.context.scene.mcell.molmaker
     update_available_scripts ( molmaker )
     return {'FINISHED'}
 
@@ -221,7 +221,7 @@ XYZRef C c    0.00 -0.01   0.002                0   0   0   0
 
 def update_molcomp_list_from_defs ( context, molcomp_list, moldef_text, build_as_3D ):
 
-  mcell = context.scene.mcell
+  mcell = bpy.context.scene.mcell
   mcell_mols = mcell.molecules.molecule_list
   molmaker = mcell.molmaker
 
@@ -379,7 +379,7 @@ class MolMaker_OT_build_as_is(bpy.types.Operator):
 
   def execute(self, context):
     checked_print ( "Build Molecule from values in file" )
-    molmaker = context.scene.mcell.molmaker
+    molmaker = bpy.context.scene.mcell.molmaker
     fdata = bpy.data.texts[molmaker.molecule_text_name].as_string()
     checked_print ( "Read:\n" + fdata )
     mol_data = read_molcomp_data_SphereCyl ( fdata )
@@ -906,7 +906,7 @@ def bind_molecules_at_components ( mc, fixed_comp_index, var_comp_index, build_a
 def bind_all_molecules ( molcomp_array, build_as_3D, axial_rotation=True, bending_rotation=False ):
 
   context = bpy.context
-  mcell = context.scene.mcell
+  mcell = bpy.context.scene.mcell
   molmaker = mcell.molmaker
 
   old_debug = molmaker.print_debug
@@ -997,7 +997,7 @@ def build_all_mols ( context, molcomp_list, build_as_3D=True, axial_rotation=Tru
   else:
     checked_print ( "\n\nBuilding as 2D" )
 
-  molmaker = context.scene.mcell.molmaker
+  molmaker = bpy.context.scene.mcell.molmaker
 
   bind_all_molecules ( molcomp_list, build_as_3D, axial_rotation=molmaker.axial_rotation, bending_rotation=molmaker.bending_rotation )
 
@@ -1038,7 +1038,7 @@ class MolMaker_OT_build_2D(bpy.types.Operator):
 
   def execute(self, context):
     checked_print ( "Build Molecule 2D" )
-    molmaker = context.scene.mcell.molmaker
+    molmaker = bpy.context.scene.mcell.molmaker
     moldef_text = None
     if molmaker.comp_loc_text_name in bpy.data.texts:
       moldef_text = bpy.data.texts[molmaker.comp_loc_text_name].as_string()
@@ -1061,7 +1061,7 @@ class MolMaker_OT_build_3D(bpy.types.Operator):
 
   def execute(self, context):
     checked_print ( "Build Molecule calculating new values from CellBlender" )
-    molmaker = context.scene.mcell.molmaker
+    molmaker = bpy.context.scene.mcell.molmaker
     moldef_text = None
     if molmaker.comp_loc_text_name in bpy.data.texts:
       moldef_text = bpy.data.texts[molmaker.comp_loc_text_name].as_string()
@@ -1084,7 +1084,7 @@ class MolMaker_OT_to_nauty(bpy.types.Operator):
 
   def execute(self, context):
     print ( "Build a NAUTY string from a BNGL string" )
-    molmaker = context.scene.mcell.molmaker
+    molmaker = bpy.context.scene.mcell.molmaker
     return {'FINISHED'}
 
 
@@ -1096,7 +1096,7 @@ class MolMaker_OT_to_bngl(bpy.types.Operator):
 
   def execute(self, context):
     print ( "Build a BNGL string from a NAUTY string" )
-    molmaker = context.scene.mcell.molmaker
+    molmaker = bpy.context.scene.mcell.molmaker
     ns = molmaker.nauty_string
     print ( "Original NAUTY string: " + ns )
 
@@ -1224,7 +1224,7 @@ class MolMaker_OT_to_bngl(bpy.types.Operator):
 
 
 def check_bond_index ( self, context ):
-  mcell = context.scene.mcell
+  mcell = bpy.context.scene.mcell
   molmaker = mcell.molmaker
   this_mc_index = 0
   for mc in molmaker.molcomp_items:
@@ -1241,22 +1241,22 @@ def check_bond_index ( self, context ):
 
 
 def redraw_mol ( self, context ):
-  mcell = context.scene.mcell
+  mcell = bpy.context.scene.mcell
   molmaker = mcell.molmaker
   if molmaker.dynamic_rotation:
     checked_print ( "Redrawing the molecule with:" )
     checked_print ( "  self = " + str(self) )
     checked_print ( "  context = " + str(context) )
-    if 'Mol Object' in context.scene.collection.children[0].objects:
+    if 'Mol Object' in bpy.context.scene.collection.children[0].objects:
       # The following may not have deleted everything since there was progressive slowing:
 
-      #obj = context.scene.objects['Mol Object']
-      #context.scene.objects.unlink ( obj )
+      #obj = bpy.context.scene.objects['Mol Object']
+      #bpy.context.scene.objects.unlink ( obj )
       #bpy.data.objects.remove ( obj )
 
       # Try this:
       bpy.ops.object.select_all ( action = 'DESELECT' )
-      obj = context.scene.collection.children[0].objects['Mol Object']
+      obj = bpy.context.scene.collection.children[0].objects['Mol Object']
       obj.select_set(True)
       bpy.ops.object.delete()
 
@@ -1292,7 +1292,7 @@ class MolMaker_OT_refresh_mol_def(bpy.types.Operator):
   bl_options = {'REGISTER', 'UNDO'}
 
   def execute(self, context):
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     molmaker = mcell.molmaker
     parts = molmaker.molecule_definition.split(".")
     checked_print ( "Update the molecule/component list with " + str(parts) )
@@ -1339,7 +1339,7 @@ class MolMaker_OT_chain_mols(bpy.types.Operator):
   bl_options = {'REGISTER', 'UNDO'}
 
   def execute(self, context):
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     molmaker = mcell.molmaker
     molcomp_items = molmaker.molcomp_items
     for mol_index in range(len(molcomp_items)):
@@ -1369,7 +1369,7 @@ def build_complex_from_cellblender ( context ):
   checked_print ( "Build Molecule calculating new values from CellBlender" )
 
   # Note that this assumes that the Molecules come first followed by components
-  mcell = context.scene.mcell
+  mcell = bpy.context.scene.mcell
   mcell_mols = mcell.molecules.molecule_list
   molmaker = mcell.molmaker
 
@@ -1639,7 +1639,7 @@ class MCellMolMakerPropertyGroup(bpy.types.PropertyGroup):
 
   def draw_layout ( self, context, layout ):
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     molmaker = mcell.molmaker
 
     row = layout.row()
@@ -1731,7 +1731,7 @@ class MCellMolMakerPropertyGroup(bpy.types.PropertyGroup):
 
       row = layout.row()
       row.operator ( "mol.build_as_is" )
-      if 'mcell' in context.scene:
+      if 'mcell' in bpy.context.scene:
         # CellBlender is installed, so allow these options which use CellBlender molecule definitions
         row = layout.row()
         row.operator ( "mol.rebuild_two_d" )
@@ -1784,7 +1784,7 @@ def add_cylinder_from_lpts ( p1, p2, radius=0.1, faces=8, caps=False ):
 
 
 def join_to_working_object ( context, working_obj ):
-  context.view_layer.objects.active = working_obj
+  bpy.context.view_layer.objects.active = working_obj
   working_obj.select_set(True)
   bpy.ops.object.join()
 
@@ -1792,7 +1792,7 @@ def join_to_working_object ( context, working_obj ):
 def new_blender_mol_from_SphereCyl_data ( context, mol_data, show_key_planes=False ):
 
   # print ( "Mol data = " + str(mol_data) )
-  mcell = context.scene.mcell
+  mcell = bpy.context.scene.mcell
   mcell_mols = mcell.molecules.molecule_list
   molmaker = mcell.molmaker
   mats = bpy.data.materials
@@ -1856,10 +1856,10 @@ def new_blender_mol_from_SphereCyl_data ( context, mol_data, show_key_planes=Fal
   mol_obj = bpy.data.objects.new("Mol Object", mol_mesh)
 
   # Put the mesh into the scene and make active
-  context.scene.collection.children[0].objects.link(mol_obj)
+  bpy.context.scene.collection.children[0].objects.link(mol_obj)
   bpy.ops.object.select_all ( action = "DESELECT" )
   mol_obj.select_set(True)
-  context.view_layer.objects.active = mol_obj
+  bpy.context.view_layer.objects.active = mol_obj
 
   sphere_list = mol_data['SphereList']
   cylinder_list = mol_data['CylList']
@@ -1876,11 +1876,11 @@ def new_blender_mol_from_SphereCyl_data ( context, mol_data, show_key_planes=Fal
         # Try to find a molecule color material matching this molecule
         mname = "mol_" + mol['name'] + "_mat"
         if mname in mats:
-          context.active_object.data.materials.append ( mats.get(mname) )
+          bpy.context.active_object.data.materials.append ( mats.get(mname) )
           color_set = True
       if (not color_set) and ('c' in mol):
         if mol['c'] in mats:
-          context.active_object.data.materials.append ( mats.get(mol['c']) )
+          bpy.context.active_object.data.materials.append ( mats.get(mol['c']) )
       join_to_working_object ( context, mol_obj )
 
   # Add the bonds (cylinders)
@@ -1891,7 +1891,7 @@ def new_blender_mol_from_SphereCyl_data ( context, mol_data, show_key_planes=Fal
     p0 = sph0['loc']
     p1 = sph1['loc']
     add_cylinder_from_lpts ( p0, p1, radius=cyl[2], faces=16, caps=False )
-    context.active_object.data.materials.append ( mats.get("MolMaker_bond") )
+    bpy.context.active_object.data.materials.append ( mats.get("MolMaker_bond") )
     join_to_working_object ( context, mol_obj )
 
   # Add the keys (as faces)
@@ -1915,11 +1915,11 @@ def new_blender_mol_from_SphereCyl_data ( context, mol_data, show_key_planes=Fal
       NewMesh.materials.append ( mats.get("MolMaker_key_plane") )
       NewObj = bpy.data.objects.new("KeyObj", NewMesh)
       NewObj.show_transparent = True
-      context.scene.collection.children[0].objects.link ( NewObj)
-      context.view_layer.objects.active = NewObj
-      for o in context.scene.collection.children[0].objects:
+      bpy.context.scene.collection.children[0].objects.link ( NewObj)
+      bpy.context.view_layer.objects.active = NewObj
+      for o in bpy.context.scene.collection.children[0].objects:
         o.select_set(False)
-      context.view_layer.objects.active = NewObj
+      bpy.context.view_layer.objects.active = NewObj
       NewObj.select_set(True)
       join_to_working_object ( context, mol_obj )
       mol_obj.show_transparent = True

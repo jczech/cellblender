@@ -78,7 +78,7 @@ def convert_surf_class_str(surf_class_type):
 def check_surf_class_props(self, context):
     """Checks for illegal/undefined molecule names in surf class properties"""
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     active_surf_class = mcell.surface_classes.surf_class_list[
         mcell.surface_classes.active_surf_class_index]
     surf_class_props = active_surf_class.surf_class_props_list[
@@ -120,7 +120,7 @@ def check_surf_class_props(self, context):
 def check_surface_class(self, context):
     """Checks for duplicate or illegal surface class name"""
 
-    surf_class = context.scene.mcell.surface_classes
+    surf_class = bpy.context.scene.mcell.surface_classes
     active_surf_class = surf_class.surf_class_list[
         surf_class.active_surf_class_index]
 
@@ -156,7 +156,7 @@ class MCELL_OT_surf_class_props_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.surface_classes.add_class_prop ( context )
+        bpy.context.scene.mcell.surface_classes.add_class_prop ( context )
         return {'FINISHED'}
 
 
@@ -167,7 +167,7 @@ class MCELL_OT_surf_class_props_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.surface_classes.remove_class_prop ( context )
+        bpy.context.scene.mcell.surface_classes.remove_class_prop ( context )
         return {'FINISHED'}
 
 
@@ -178,7 +178,7 @@ class MCELL_OT_surface_class_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.surface_classes.add_class ( context )
+        bpy.context.scene.mcell.surface_classes.add_class ( context )
         return {'FINISHED'}
 
 
@@ -189,7 +189,7 @@ class MCELL_OT_surface_class_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.surface_classes.remove_active_class ( context )
+        bpy.context.scene.mcell.surface_classes.remove_active_class ( context )
         return {'FINISHED'}
 
 
@@ -337,7 +337,7 @@ class MCellSurfaceClassPropertiesProperty(bpy.types.PropertyGroup):
 
     def remove_properties ( self, context ):
         print ( "Removing all Surface Class Properties... no collections to remove." )
-        ps = context.scene.mcell.parameter_system
+        ps = bpy.context.scene.mcell.parameter_system
         self.clamp_value.clear_ref ( ps )
 
 
@@ -429,7 +429,7 @@ class MCellSurfaceClassesProperty(bpy.types.PropertyGroup):
                 self.surf_class_props_list.add()
                 self.active_surf_class_props_index = len(self.surf_class_props_list)-1
                 scp = self.surf_class_props_list[self.active_surf_class_props_index]
-                scp.init_properties(context.scene.mcell.parameter_system)
+                scp.init_properties(bpy.context.scene.mcell.parameter_system)
                 scp.build_properties_from_data_model ( context, sc )
 
 
@@ -453,7 +453,7 @@ class MCellSurfaceClassesPropertyGroup(bpy.types.PropertyGroup):
     def add_class ( self, context ):
         self.surf_class_list.add()
         self.active_surf_class_index = len(self.surf_class_list) - 1
-        self.surf_class_list[self.active_surf_class_index].init_properties(context.scene.mcell.parameter_system)
+        self.surf_class_list[self.active_surf_class_index].init_properties(bpy.context.scene.mcell.parameter_system)
         self.surf_class_list[self.active_surf_class_index].name = "Surface_Class"
 
     def remove_active_class ( self, context ):
@@ -485,7 +485,7 @@ class MCellSurfaceClassesPropertyGroup(bpy.types.PropertyGroup):
         active_surf_class = self.surf_class_list[self.active_surf_class_index]
         active_surf_class.surf_class_props_list.add()
         active_surf_class.active_surf_class_props_index = len(active_surf_class.surf_class_props_list) - 1
-        active_surf_class.surf_class_props_list[active_surf_class.active_surf_class_props_index].init_properties(context.scene.mcell.parameter_system)
+        active_surf_class.surf_class_props_list[active_surf_class.active_surf_class_props_index].init_properties(bpy.context.scene.mcell.parameter_system)
         check_surf_class_props(self, context)
 
 
@@ -546,7 +546,7 @@ class MCellSurfaceClassesPropertyGroup(bpy.types.PropertyGroup):
                 self.surf_class_list.add()
                 self.active_surf_class_index = len(self.surf_class_list)-1
                 sc = self.surf_class_list[self.active_surf_class_index]
-                sc.init_properties(context.scene.mcell.parameter_system)
+                sc.init_properties(bpy.context.scene.mcell.parameter_system)
                 sc.build_properties_from_data_model ( context, s )
 
     def check_properties_after_building ( self, context ):
@@ -565,7 +565,7 @@ class MCellSurfaceClassesPropertyGroup(bpy.types.PropertyGroup):
 
     def draw_layout(self, context, layout):
         # layout = self.layout
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )

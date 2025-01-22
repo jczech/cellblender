@@ -59,7 +59,7 @@ def get_object_status(context):
         ostat['hide_viewport'] = o.hide_viewport
         ostat['hide_set'] = o.hide_get()
         ostat['sel'] = ( o.select_get() == True )
-        ostat['act'] = ( o == context.active_object )
+        ostat['act'] = ( o == bpy.context.active_object )
 #        ostat['layers'] = o.layers[:]
         objstat[o.name] = ostat
     return objstat
@@ -122,11 +122,11 @@ class MCELL_OT_model_obj_add_mat(bpy.types.Operator):
         objstat = get_object_status(context)
         model_objects = bpy.context.scene.mcell.model_objects
         obj_name = str(model_objects.object_list[model_objects.active_obj_index].name)
-        for obj in context.selected_objects:
+        for obj in bpy.context.selected_objects:
             obj.select_set(False)
         obj = bpy.data.objects[obj_name]
         obj.select_set(True)
-        context.view_layer.objects.active = obj
+        bpy.context.view_layer.objects.active = obj
         mat_name = obj_name + "_mat"
         if bpy.data.materials.get(mat_name) is not None:
             mat = bpy.data.materials[mat_name]
@@ -158,10 +158,10 @@ class MCELL_OT_model_objects_add(bpy.types.Operator):
                 mol_objs += [obj.children[0] for obj in mol_objs] # get shapes too
         except KeyError:
             mol_objs = []
-        objs = [obj for obj in context.selected_objects if (obj.type == 'MESH' and obj not in mol_objs) ]
+        objs = [obj for obj in bpy.context.selected_objects if (obj.type == 'MESH' and obj not in mol_objs) ]
         for obj in objs:
-            # context.active_object = obj # Can't do this because active_object is read only
-            context.view_layer.objects.active = obj
+            # bpy.context.active_object = obj # Can't do this because active_object is read only
+            bpy.context.view_layer.objects.active = obj
 
             bpy.ops.object.mode_set(mode='EDIT')
             bpy.ops.mesh.select_all(action='SELECT')
@@ -232,7 +232,7 @@ class MCELL_OT_model_objects_remove_sel(bpy.types.Operator):
         sobjs = bpy.context.scene.collection.children[0].objects
 
         # From the list of selected objects, only remove MESH objects.
-        objs = [obj for obj in context.selected_objects if obj.type == 'MESH']
+        objs = [obj for obj in bpy.context.selected_objects if obj.type == 'MESH']
         orig_obj_name = None
         if len(mobjs.object_list) > 0:
           orig_obj_name = mobjs.object_list[mobjs.active_obj_index].name
@@ -634,7 +634,7 @@ def object_show_only_callback(self, context):
                         o.hide_viewport = False
                     if not o.select_get():
                         o.select_set(True)
-                    context.view_layer.objects.active = o
+                    bpy.context.view_layer.objects.active = o
                 else:
                     # Hide and DeSelect
                     if o.visible_get():
@@ -783,7 +783,7 @@ def active_obj_index_changed ( self, context ):
                     o.hide_set(False)
                 if not o.select_get():
                     o.select_set(True)
-                context.view_layer.objects.active = o
+                bpy.context.view_layer.objects.active = o
             else:
                 # DeSelect
                 if o.select_get():
@@ -837,10 +837,10 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
 
             row = layout.row()
-            if context.active_object is None:
+            if bpy.context.active_object is None:
                 row.label ( text="No active object" )
             else:
-                row.prop (context.active_object, "name", text="Active Object")
+                row.prop (bpy.context.active_object, "name", text="Active Object")
 
             row = layout.row()
             col = row.column()
@@ -1130,8 +1130,8 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
         data_object.hide_viewport = False
         data_object.hide_set(False)
 
-        context.view_layer.objects.active = data_object
-        if context.view_layer.objects.active != data_object:
+        bpy.context.view_layer.objects.active = data_object
+        if bpy.context.view_layer.objects.active != data_object:
             print("Not active!!")
             
         try:
@@ -1160,7 +1160,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
         # This is needed for shape key dynamic geometry rather than: mesh = data_object.data
 #        mesh = data_object.to_mesh(bpy.context.scene, True, 'PREVIEW', calc_tessface=False)
-        mesh = data_object.to_mesh(preserve_all_data_layers=True, depsgraph=context.evaluated_depsgraph_get())
+        mesh = data_object.to_mesh(preserve_all_data_layers=True, depsgraph=bpy.context.evaluated_depsgraph_get())
 
         mesh.transform(mathutils.Matrix() @ data_object.matrix_world)
         vert_vecs = [v.co for v in mesh.vertices]
@@ -1205,7 +1205,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
         obj_list = [ obj for obj in bpy.context.scene.collection.children[0].objects if obj.mcell.include ]
 
         # save status of active object
-        saved_active_object = context.view_layer.objects.active
+        saved_active_object = bpy.context.view_layer.objects.active
 
         for data_object in obj_list:
           g_list.append ( self.build_data_model_object_from_mesh( context, data_object) )
@@ -1246,7 +1246,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
             bpy.context.scene.frame_set(fc)
 
         # restore saved active object
-        context.view_layer.objects.active = saved_active_object
+        bpy.context.view_layer.objects.active = saved_active_object
 
         return g_dm
 
@@ -1337,7 +1337,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
             # The following code slowed the creation process to a crawl!!!
             #bpy.ops.object.select_all ( action = "DESELECT" )
             #new_obj.select_set(True)
-            #context.view_layer.objects.active = new_obj
+            #bpy.context.view_layer.objects.active = new_obj
             most_recent_object = new_obj
 
             #print ( "    Add surface regions for " + model_object['name'] )
@@ -1352,7 +1352,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
                     bpy.ops.object.select_all ( action = "DESELECT" )
                     new_obj.select_set(True)
-                    context.view_layer.objects.active = new_obj
+                    bpy.context.view_layer.objects.active = new_obj
 
                     #print ( "    Before add_region_by_name" )
                     new_obj.mcell.regions.add_region_by_name ( context, rgn['name'] )
@@ -1368,7 +1368,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
             bpy.ops.object.select_all ( action = "DESELECT" )
             most_recent_object.select_set(True)
-            context.view_layer.objects.active = most_recent_object
+            bpy.context.view_layer.objects.active = most_recent_object
 
         print ( "  Done creating new objects" )
 

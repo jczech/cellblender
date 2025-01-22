@@ -95,10 +95,10 @@ print ( "Mols imported for Tom commented with " + __name__ )
 
 def set_molecule_glyph ( context, glyph_name ):
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     meshes = bpy.data.meshes
     mcell.molecule_glyphs.status = ""
-    select_objs = context.selected_objects
+    select_objs = bpy.context.selected_objects
     if (len(select_objs) != 1):
         mcell.molecule_glyphs.status = "Select One Molecule"
         return
@@ -183,7 +183,7 @@ class MCELL_OT_molecule_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.molecules.add_molecule(context)
+        bpy.context.scene.mcell.molecules.add_molecule(context)
         return {'FINISHED'}
 
 class MCELL_OT_molecule_duplicate(bpy.types.Operator):
@@ -193,7 +193,7 @@ class MCELL_OT_molecule_duplicate(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.molecules.duplicate_molecule(context)
+        bpy.context.scene.mcell.molecules.duplicate_molecule(context)
         return {'FINISHED'}
 
 class MCELL_OT_molecule_remove(bpy.types.Operator):
@@ -203,7 +203,7 @@ class MCELL_OT_molecule_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.molecules.remove_active_molecule(context)
+        bpy.context.scene.mcell.molecules.remove_active_molecule(context)
         self.report({'INFO'}, "Deleted Molecule")
         return {'FINISHED'}
 
@@ -215,7 +215,7 @@ class MCELL_OT_mol_comp_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.molecules.add_component(context)
+        bpy.context.scene.mcell.molecules.add_component(context)
         self.report({'INFO'}, "Added Component")
         return {'FINISHED'}
 
@@ -226,7 +226,7 @@ class MCELL_OT_mol_comp_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.molecules.remove_active_component(context)
+        bpy.context.scene.mcell.molecules.remove_active_component(context)
         self.report({'INFO'}, "Deleted Component")
         return {'FINISHED'}
 
@@ -239,9 +239,9 @@ class MCELL_OT_set_molecule_glyph(bpy.types.Operator):
 
     def execute(self, context):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell.molecule_glyphs.status = ""
-        select_objs = context.selected_objects
+        select_objs = bpy.context.selected_objects
         if (len(select_objs) != 1):
             mcell.molecule_glyphs.status = "Select One Molecule"
             return {'FINISHED'}
@@ -273,7 +273,7 @@ class MCELL_OT_mol_comp_stick(bpy.types.Operator):
         stick_name = "mol_comp_stick_mesh"
         shape_name = stick_name + "_shape"
 
-        mols = context.scene.mcell.molecules
+        mols = bpy.context.scene.mcell.molecules
         this_mol = mols.molecule_list[mols.active_mol_index]
         num_comps = len(this_mol.component_list)
         comp_dist = this_mol.component_distance
@@ -379,7 +379,7 @@ class MCELL_OT_mol_auto_key(bpy.types.Operator):
     def execute(self, context):
         self.report({'INFO'}, "Auto keyed")
         print ( "Auto keying components to first key" )
-        mols = context.scene.mcell.molecules
+        mols = bpy.context.scene.mcell.molecules
         this_mol = mols.molecule_list[mols.active_mol_index]
         cl = this_mol.component_list
         # Create a list of ONLY the actual keys
@@ -433,10 +433,10 @@ def name_change_callback(self, context):
 
 def glyph_visibility_callback(self, context):
     # print ( "Glyph vis change callback for molecule " + self.name )
-    ms = context.scene.mcell
+    ms = bpy.context.scene.mcell
     show_name = "mol_" + self.name
     show_shape_name = show_name + "_shape"
-    objs = context.scene.collection.children[0].objects
+    objs = bpy.context.scene.collection.children[0].objects
 
     objs[show_name].hide_set(not self.glyph_visibility)
     objs[show_name].hide_viewport = not self.glyph_visibility
@@ -454,7 +454,7 @@ def glyph_show_only_callback(self, context):
     # Note the check before set to keep from infinite recursion in properties!!
     if self.glyph_show_only != False:
         self.glyph_show_only = False
-    ms = context.scene.mcell.molecules
+    ms = bpy.context.scene.mcell.molecules
     ml = ms.molecule_list
     show_only_name = "mol_" + self.name
     show_only_shape_name = show_only_name + "_shape"
@@ -463,7 +463,7 @@ def glyph_show_only_callback(self, context):
     # print ( "Only showing " + str(show_only_items) )
     
     # Note the check before set to keep from infinite recursion in properties!!
-    for o in context.scene.collection.children[0].objects:
+    for o in bpy.context.scene.collection.children[0].objects:
         if o.name.startswith("mol_"):
             if o.name in show_only_items:
                 if not o.visible_get():
@@ -505,7 +505,7 @@ class MCELL_OT_mol_shade_flat(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mols = context.scene.mcell.molecules
+        mols = bpy.context.scene.mcell.molecules
         if len(mols.molecule_list) > 0:
             mol = mols.molecule_list[mols.active_mol_index]
             if mol:
@@ -522,7 +522,7 @@ class MCELL_OT_mol_shade_smooth(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mols = context.scene.mcell.molecules
+        mols = bpy.context.scene.mcell.molecules
         if len(mols.molecule_list) > 0:
             mol = mols.molecule_list[mols.active_mol_index]
             if mol:
@@ -534,23 +534,23 @@ class MCELL_OT_mol_shade_smooth(bpy.types.Operator):
 
 
 def draw_labels_callback(self, context):
-    disp_mol_labels = context.window_manager.display_mol_labels
+    disp_mol_labels = bpy.context.window_manager.display_mol_labels
     if disp_mol_labels.show_mol_labels:
-      if context.window_manager.display_mol_labels.enabled:
+      if bpy.context.window_manager.display_mol_labels.enabled:
         if context == None:
           print ( "draw_labels_callback: context is None" )
           return
-        if context.region == None:
-          print ( "draw_labels_callback: context.region is None" )
+        if bpy.context.region == None:
+          print ( "draw_labels_callback: bpy.context.region is None" )
           return
-        if context.space_data == None:
-          print ( "draw_labels_callback: context.space_data is None" )
+        if bpy.context.space_data == None:
+          print ( "draw_labels_callback: bpy.context.space_data is None" )
           return
-        if context.space_data.region_3d == None:
-          print ( "draw_labels_callback: context.space_data.region_3d is None" )
+        if bpy.context.space_data.region_3d == None:
+          print ( "draw_labels_callback: bpy.context.space_data.region_3d is None" )
           return
 
-        mv = context.scene.mcell.mol_viz
+        mv = bpy.context.scene.mcell.mol_viz
         if 'mol_labels_index' in mv:
           ml_obj_labels_index = mv['mol_labels_index']
           ml_obj_labels_x = mv['mol_labels_x']
@@ -563,7 +563,7 @@ def draw_labels_callback(self, context):
             y = ml_obj_labels_y[i]
             z = ml_obj_labels_z[i]
             if ml_obj_labels_bngl[t] != None:
-              screen_coords = location_3d_to_region_2d (context.region, context.space_data.region_3d, [x,y,z])
+              screen_coords = location_3d_to_region_2d (bpy.context.region, bpy.context.space_data.region_3d, [x,y,z])
               # Note that screen_coords can be None when an object is too close in perspective mode
               if screen_coords != None:
                 loc_x, loc_y = screen_coords
@@ -580,7 +580,7 @@ class MCELL_OT_mol_show_text(bpy.types.Operator):
 
     """
     def execute(self, context):
-        mols = context.scene.mcell.molecules
+        mols = bpy.context.scene.mcell.molecules
         if len(mols.molecule_list) > 0:
             mol = mols.molecule_list[mols.active_mol_index]
             if mol:
@@ -593,8 +593,8 @@ class MCELL_OT_mol_show_text(bpy.types.Operator):
     _handle = None
 
     def modal(self, context, event):
-        context.area.tag_redraw()
-        if not context.window_manager.display_mol_labels.enabled:
+        bpy.context.area.tag_redraw()
+        if not bpy.context.window_manager.display_mol_labels.enabled:
             # MCELL_OT_mol_show_text.handle_remove(context)
             return {'CANCELLED'}
         return {'PASS_THROUGH'}
@@ -614,20 +614,20 @@ class MCELL_OT_mol_show_text(bpy.types.Operator):
         MCELL_OT_mol_show_text._handle = None
 
     def cancel(self, context):
-        if context.window_manager.display_mol_labels.enabled:
+        if bpy.context.window_manager.display_mol_labels.enabled:
             MCELL_OT_mol_show_text.handle_remove(context)
-            context.window_manager.display_mol_labels.enabled = False
+            bpy.context.window_manager.display_mol_labels.enabled = False
         return {'CANCELLED'}
 
     def invoke(self, context, event):
-        if context.window_manager.display_mol_labels.enabled == False:
-            context.window_manager.display_mol_labels.enabled = True
-            context.window_manager.modal_handler_add(self)
+        if bpy.context.window_manager.display_mol_labels.enabled == False:
+            bpy.context.window_manager.display_mol_labels.enabled = True
+            bpy.context.window_manager.modal_handler_add(self)
             MCELL_OT_mol_show_text.handle_add(self, context)
 
             return {'RUNNING_MODAL'}
         else:
-            context.window_manager.display_mol_labels.enabled = False
+            bpy.context.window_manager.display_mol_labels.enabled = False
             MCELL_OT_mol_show_text.handle_remove(context)
 
             return {'CANCELLED'}
@@ -711,7 +711,7 @@ class MCellMolComponentProperty(bpy.types.PropertyGroup):
 
     def remove_properties ( self, context ):
         print ( "Removing all Component Properties ..." )
-        ps = context.scene.mcell.parameter_system
+        ps = bpy.context.scene.mcell.parameter_system
         self.loc_x.clear_ref ( ps )
         self.loc_y.clear_ref ( ps )
         self.loc_z.clear_ref ( ps )
@@ -729,7 +729,7 @@ class MCell_OT_molecule_recalc_comps(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        ms = context.scene.mcell.molecules
+        ms = bpy.context.scene.mcell.molecules
         print ( "Recalculating Component Geometry" )
         for m in ms.molecule_list:
           if (m.geom_type == '2DAuto') or (m.geom_type == '3DAuto'):
@@ -761,8 +761,8 @@ class MCell_OT_molecule_2D_Circ(bpy.types.Operator):
         # Arrange the components evenly spaced on a sphere
 
         print ( "Recalculating Molecule Component Geometry in 3D" )
-        ps = context.scene.mcell.parameter_system
-        mols = context.scene.mcell.molecules
+        ps = bpy.context.scene.mcell.parameter_system
+        mols = bpy.context.scene.mcell.molecules
         this_mol = mols.molecule_list[mols.active_mol_index]
 
         # Create a list of ONLY the actual components
@@ -789,8 +789,8 @@ class MCell_OT_molecule_3D_Sp(bpy.types.Operator):
         # Arrange the components evenly spaced on a sphere
 
         print ( "Recalculating Molecule Component Geometry in 3D" )
-        ps = context.scene.mcell.parameter_system
-        mols = context.scene.mcell.molecules
+        ps = bpy.context.scene.mcell.parameter_system
+        mols = bpy.context.scene.mcell.molecules
         this_mol = mols.molecule_list[mols.active_mol_index]
 
         # Create a list of ONLY the actual components
@@ -813,7 +813,7 @@ def mol_geom_type_changed_callback ( self, context ):
     print ( "Geometry Type has been changed!!" )
     print ( "self = " + str(self) )
 
-    # ps = context.scene.mcell.parameter_system
+    # ps = bpy.context.scene.mcell.parameter_system
 
     if self.geom_type == '2DAuto':
 
@@ -1008,7 +1008,7 @@ class MCellMoleculeProperty(bpy.types.PropertyGroup):
 
     def remove_properties ( self, context ):
         print ( "Removing all Molecule Properties ..." )
-        ps = context.scene.mcell.parameter_system
+        ps = bpy.context.scene.mcell.parameter_system
         self.diffusion_constant.clear_ref ( ps )
         self.custom_time_step.clear_ref ( ps )
         self.custom_space_step.clear_ref ( ps )
@@ -1182,7 +1182,7 @@ class MCellMoleculeProperty(bpy.types.PropertyGroup):
 
     def add_component_vals ( self, context, name, states="", is_key = False, loc_x = "0", loc_y="0", loc_z="0", rot_x="0", rot_y="0", rot_z="0", rot_ang="0", rot_index=-1 ):
         new_comp = self.component_list.add()
-        new_comp.init_properties(context.scene.mcell.parameter_system)
+        new_comp.init_properties(bpy.context.scene.mcell.parameter_system)
         new_comp.component_name = name
         new_comp.states_string = states
         new_comp.is_key = is_key;
@@ -1697,7 +1697,7 @@ class MCellMoleculeProperty(bpy.types.PropertyGroup):
         # Refresh the scene
         self.set_mol_glyph ( context )
         cellblender_mol_viz.mol_viz_update(self,context)  # It's not clear why mol_viz_update needs a self. It's not in a class, and doesn't use the "self".
-        context.view_layer.update()  # It's also not clear if this is needed ... but it doesn't seem to hurt!!
+        bpy.context.view_layer.update()  # It's also not clear if this is needed ... but it doesn't seem to hurt!!
         return
 
 
@@ -1715,9 +1715,9 @@ class MCellMoleculeProperty(bpy.types.PropertyGroup):
             mol_shape_name = 'mol_' + self.name + '_shape'
 
             bpy.ops.object.select_all(action='DESELECT')
-            context.scene.collection.children[0].objects[mol_shape_name].hide_select = False
-            context.scene.collection.children[0].objects[mol_shape_name].select_set(True)
-            context.view_layer.objects.active = bpy.data.objects[mol_shape_name]
+            bpy.context.scene.collection.children[0].objects[mol_shape_name].hide_select = False
+            bpy.context.scene.collection.children[0].objects[mol_shape_name].select_set(True)
+            bpy.context.view_layer.objects.active = bpy.data.objects[mol_shape_name]
 
 
             # Exact code starts here (allow it to duplicate some previous code for now):
@@ -1736,10 +1736,10 @@ class MCellMoleculeProperty(bpy.types.PropertyGroup):
         ###########################################
         ###########################################
         
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         meshes = bpy.data.meshes
         mcell.molecule_glyphs.status = ""
-        #select_objs = context.selected_objects
+        #select_objs = bpy.context.selected_objects
         #if len(select_objs) == -123:
         #    if (len(select_objs) != 1):
         #        mcell.molecule_glyphs.status = "Select One Molecule"
@@ -1757,7 +1757,7 @@ class MCellMoleculeProperty(bpy.types.PropertyGroup):
         mol_obj = bpy.data.objects['mol_' + self.name]
         mol_shape_name = 'mol_' + self.name + '_shape'
         print ( "Try to select " + mol_shape_name + " from bpy.data.objects["+self.name+"]" )
-        context.view_layer.objects.active = bpy.data.objects[mol_shape_name]
+        bpy.context.view_layer.objects.active = bpy.data.objects[mol_shape_name]
 
         glyph_name = str(self.glyph)
 
@@ -1841,12 +1841,12 @@ class MCELL_UL_check_molecule(bpy.types.UIList):
             col3.label ( text="33333333333333333" )
             """
 
-            mcell = context.scene.mcell
+            mcell = bpy.context.scene.mcell
             ms = mcell.molecules
             show_name = "mol_" + item.name
             show_shape_name = show_name + "_shape"
             mat_name = show_name + "_mat"
-            objs = context.scene.collection.children[0].objects
+            objs = bpy.context.scene.collection.children[0].objects
 
             col = layout.column()
             col.label(text=item.name, icon='CHECKMARK')
@@ -2019,8 +2019,8 @@ class MCELL_UL_check_component(bpy.types.UIList):
         if data.geom_type == '2DAuto':
 
             # Arrange the components evenly spaced on a circle in the x-y plane
-            ps = context.scene.mcell.parameter_system
-            mols = context.scene.mcell.molecules
+            ps = bpy.context.scene.mcell.parameter_system
+            mols = bpy.context.scene.mcell.molecules
             this_mol = mols.molecule_list[mols.active_mol_index]
             num_comps = len(this_mol.component_list)
             comp_dist = this_mol.component_distance
@@ -2040,8 +2040,8 @@ class MCELL_UL_check_component(bpy.types.UIList):
 
             # Arrange the components evenly spaced on a sphere
 
-            ps = context.scene.mcell.parameter_system
-            mols = context.scene.mcell.molecules
+            ps = bpy.context.scene.mcell.parameter_system
+            mols = bpy.context.scene.mcell.molecules
             this_mol = mols.molecule_list[mols.active_mol_index]
 
             # Create a list of ONLY the actual components
@@ -2074,7 +2074,7 @@ class MCELL_UL_check_component(bpy.types.UIList):
 
             # Arrange the components at the coordinates x, y, z
 
-            ps = context.scene.mcell.parameter_system
+            ps = bpy.context.scene.mcell.parameter_system
 
             col = layout.column()
             col.label(text='loc [x,y,z]', icon='NONE')
@@ -2090,7 +2090,7 @@ class MCELL_UL_check_component(bpy.types.UIList):
 
             # Arrange the components at the coordinates x, y, z with reference point (using rot_x, rot_y, rot_z)
 
-            ps = context.scene.mcell.parameter_system
+            ps = bpy.context.scene.mcell.parameter_system
 
             #col = layout.column()
             #col.label(text='loc [x,y,z]', icon='NONE')
@@ -2112,7 +2112,7 @@ class MCELL_UL_check_component(bpy.types.UIList):
 
             # Arrange the components at the coordinates x, y, z with binding angle
 
-            ps = context.scene.mcell.parameter_system
+            ps = bpy.context.scene.mcell.parameter_system
 
             col = layout.column()
             col.label(text='x,y,z,ang', icon='NONE')
@@ -2131,7 +2131,7 @@ class MCELL_UL_check_component(bpy.types.UIList):
 
             # Arrange the components at the coordinates x, y, z with binding angle about a vector
 
-            ps = context.scene.mcell.parameter_system
+            ps = bpy.context.scene.mcell.parameter_system
 
             #col = layout.column()
             #col.label(text='loc [x,y,z]', icon='NONE')
@@ -2163,14 +2163,14 @@ class MCell_OT_molecule_show_all(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        ms = context.scene.mcell.molecules
+        ms = bpy.context.scene.mcell.molecules
         print ( "Showing All" )
         for o in ms.molecule_list:
             if not o.glyph_visibility:
                 o.glyph_visibility = True
             if o.glyph_show_only:
                 o.glyph_show_only = False
-        for o in context.scene.collection.children[0].objects:
+        for o in bpy.context.scene.collection.children[0].objects:
             if o.name.startswith("mol_"):
                 o.hide_set(False)
                 o.hide_viewport = False
@@ -2189,14 +2189,14 @@ class MCell_OT_molecule_hide_all(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        ms = context.scene.mcell.molecules
+        ms = bpy.context.scene.mcell.molecules
         print ( "Hiding All" )
         for o in ms.molecule_list:
             if o.glyph_visibility:
                 o.glyph_visibility = False
             if o.glyph_show_only:
                 o.glyph_show_only = False
-        for o in context.scene.collection.children[0].objects:
+        for o in bpy.context.scene.collection.children[0].objects:
             if o.name.startswith("mol_"):
                 o.hide_set(True)
                 o.hide_viewport = True
@@ -2215,7 +2215,7 @@ class MCell_OT_vol_orient_toggle(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        ml = context.scene.mcell.molecules.molecule_list
+        ml = bpy.context.scene.mcell.molecules.molecule_list
         vol_mols = [ mol for mol in ml if mol.type == '3D' ]
         all_true = True
         for mol in vol_mols:
@@ -2233,7 +2233,7 @@ class MCell_OT_surf_orient_toggle(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        ml = context.scene.mcell.molecules.molecule_list
+        ml = bpy.context.scene.mcell.molecules.molecule_list
         surf_mols = [ mol for mol in ml if mol.type == '2D' ]
         all_true = True
         for mol in surf_mols:
@@ -2293,12 +2293,12 @@ class MCellMoleculesListProperty(bpy.types.PropertyGroup):
         
     
     def add_molecule ( self, context ):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         """ Add a new molecule to the list of molecules and set as the active molecule """
         if mcell.mol_viz.molecule_read_in == False:
             new_mol = self.molecule_list.add()
             new_mol.id = self.allocate_available_id()
-            new_mol.init_properties(context.scene.mcell.parameter_system)
+            new_mol.init_properties(bpy.context.scene.mcell.parameter_system)
               # new_mol.initialize(context)
             self.active_mol_index = len(self.molecule_list)-1
         elif mcell.mol_viz.molecule_read_in == True:
@@ -2310,21 +2310,21 @@ class MCellMoleculesListProperty(bpy.types.PropertyGroup):
                             self.dup_check = True                                                         
                 if self.dup_check == False:
                     new_mol = self.molecule_list.add()       
-                    new_mol.init_properties(context.scene.mcell.parameter_system)
-                    new_mol.remove_mol_data(context.scene.mcell)
+                    new_mol.init_properties(bpy.context.scene.mcell.parameter_system)
+                    new_mol.remove_mol_data(bpy.context.scene.mcell)
                     self.active_mol_index = len(self.molecule_list)-1
                     self.molecule_list[self.active_mol_index].name = bpy.data.objects['molecules'].children[x].name[4:]
                 elif self.dup_check == True:
                     self.dup_check = False
       
     def duplicate_molecule ( self, context ):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         """ Add a new molecule to the list of molecules and set as the active molecule """
         if (len(bpy.data.scenes['Scene'].mcell.molecules.molecule_list) > 0):
             active_mol = self.molecule_list[self.active_mol_index]
             new_mol = self.molecule_list.add()
             new_mol.id = self.allocate_available_id()
-            new_mol.init_properties(context.scene.mcell.parameter_system)
+            new_mol.init_properties(bpy.context.scene.mcell.parameter_system)
             dm = active_mol.build_data_model_from_properties()
             new_mol.build_properties_from_data_model(context,dm)
             new_mol.name = active_mol.name +'_1'
@@ -2348,8 +2348,8 @@ class MCellMoleculesListProperty(bpy.types.PropertyGroup):
         #                     self.dup_check = True                                                         
         #         if self.dup_check == False:
         #             new_mol = self.molecule_list.add()       
-        #             new_mol.init_properties(context.scene.mcell.parameter_system)
-        #             new_mol.remove_mol_data(context.scene.mcell)
+        #             new_mol.init_properties(bpy.context.scene.mcell.parameter_system)
+        #             new_mol.remove_mol_data(bpy.context.scene.mcell)
         #             self.active_mol_index = len(self.molecule_list)-1
         #             self.molecule_list[self.active_mol_index].name = bpy.data.objects['molecules'].children[x].name[4:]
         #         elif self.dup_check == True:
@@ -2488,7 +2488,7 @@ class MCellMoleculesListProperty(bpy.types.PropertyGroup):
 
     def draw_layout ( self, context, layout ):
         """ Draw the molecule "panel" within the layout """
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )
         else:

@@ -79,7 +79,7 @@ def check_mod_surf_regions(self, context):
     """Make sure the surface class name is valid and format the list entry"""
     # print ( "  Checking the mod_surf_region for " + str(self) )
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     obj_list = mcell.model_objects.object_list
     surf_class_list = mcell.surface_classes.surf_class_list
     mod_surf_regions = mcell.mod_surf_regions
@@ -146,7 +146,7 @@ def check_mod_surf_regions(self, context):
 def check_active_mod_surf_regions(self, context):
     """This calls check_mod_surf_regions on the active mod_surf_regions"""
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     mod_surf_regions = mcell.mod_surf_regions
     active_mod_surf_regions = mod_surf_regions.mod_surf_regions_list[
         mod_surf_regions.active_mod_surf_regions_index]
@@ -169,7 +169,7 @@ class MCELL_OT_mod_surf_regions_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mod_surf_regions = context.scene.mcell.mod_surf_regions
+        mod_surf_regions = bpy.context.scene.mcell.mod_surf_regions
         mod_surf_regions.mod_surf_regions_list.add()
         mod_surf_regions.active_mod_surf_regions_index = len(
             mod_surf_regions.mod_surf_regions_list) - 1
@@ -185,7 +185,7 @@ class MCELL_OT_mod_surf_regions_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mod_surf_regions = context.scene.mcell.mod_surf_regions
+        mod_surf_regions = bpy.context.scene.mcell.mod_surf_regions
         mod_surf_regions.mod_surf_regions_list.remove(
             mod_surf_regions.active_mod_surf_regions_index)
         mod_surf_regions.active_mod_surf_regions_index -= 1
@@ -207,8 +207,8 @@ class MCELL_PT_object_selector(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        scn = context.scene
-        mcell = context.scene.mcell
+        scn = bpy.context.scene
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( self.layout )
@@ -397,7 +397,7 @@ class MCellModSurfRegionsPropertyGroup(bpy.types.PropertyGroup):
                 self.mod_surf_regions_list.add()
                 self.active_mod_surf_regions_index = len(self.mod_surf_regions_list)-1
                 sr = self.mod_surf_regions_list[self.active_mod_surf_regions_index]
-                # sr.init_properties(context.scene.mcell.parameter_system)
+                # sr.init_properties(bpy.context.scene.mcell.parameter_system)
                 sr.build_properties_from_data_model ( context, s )
 
 
@@ -416,13 +416,13 @@ class MCellModSurfRegionsPropertyGroup(bpy.types.PropertyGroup):
 
 
     def draw_layout(self, context, layout):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )
         else:
 
-            # mod_surf_regions = context.scene.mcell.mod_surf_regions
+            # mod_surf_regions = bpy.context.scene.mcell.mod_surf_regions
 
             row = layout.row()
             if not mcell.surface_classes.surf_class_list:

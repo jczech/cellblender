@@ -55,7 +55,7 @@ class MCELL_OT_reaction_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.reactions.add_reaction(context)
+        bpy.context.scene.mcell.reactions.add_reaction(context)
         return {'FINISHED'}
 
 
@@ -66,7 +66,7 @@ class MCELL_OT_reaction_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.reactions.remove_active_reaction(context)
+        bpy.context.scene.mcell.reactions.remove_active_reaction(context)
         self.report({'INFO'}, "Deleted Reaction")
         return {'FINISHED'}
 
@@ -89,7 +89,7 @@ class MCELL_OT_add_variable_rate_constant(bpy.types.Operator):
     filepath: StringProperty(subtype='FILE_PATH', default="")
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         rxn = mcell.reactions.reaction_list[mcell.reactions.active_rxn_index]
 
         rxn.load_variable_rate_file ( context, self.filepath )
@@ -98,7 +98,7 @@ class MCELL_OT_add_variable_rate_constant(bpy.types.Operator):
 
 
     def invoke(self, context, event):
-        context.window_manager.fileselect_add(self)
+        bpy.context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
 
@@ -108,7 +108,7 @@ class MCELL_OT_add_variable_rate_constant(bpy.types.Operator):
 def check_reaction(self, context):
     """Checks for duplicate or illegal reaction. Cleans up formatting."""
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
 
     #Retrieve reaction
     rxn = mcell.reactions.reaction_list[mcell.reactions.active_rxn_index]
@@ -380,7 +380,7 @@ class MCellReactionProperty(bpy.types.PropertyGroup):
 
     def remove_properties ( self, context ):
         print ( "Removing all Reaction Properties... no collections to remove." )
-        ps = context.scene.mcell.parameter_system
+        ps = bpy.context.scene.mcell.parameter_system
         self.fwd_rate.clear_ref ( ps )
         self.bkwd_rate.clear_ref ( ps )
 
@@ -495,7 +495,7 @@ class MCellReactionProperty(bpy.types.PropertyGroup):
     def write_to_mdl_file ( self, context, out_file, filedir ):
         out_file.write("  %s " % (self.name))
 
-        ps = context.scene.mcell.parameter_system
+        ps = bpy.context.scene.mcell.parameter_system
 
         if self.type == 'irreversible':
             # Use a variable rate constant file if specified
@@ -547,7 +547,7 @@ class MCellReactionsListProperty(bpy.types.PropertyGroup):
         self.reaction_list.add()
         self.active_rxn_index = len(self.reaction_list)-1
         rxn = self.reaction_list[self.active_rxn_index]
-        rxn.init_properties(context.scene.mcell.parameter_system)
+        rxn.init_properties(bpy.context.scene.mcell.parameter_system)
         check_reaction(self, context)
 
     def remove_active_reaction ( self, context ):
@@ -607,7 +607,7 @@ class MCellReactionsListProperty(bpy.types.PropertyGroup):
                 self.reaction_list.add()
                 self.active_rxn_index = len(self.reaction_list)-1
                 rxn = self.reaction_list[self.active_rxn_index]
-                rxn.init_properties(context.scene.mcell.parameter_system)
+                rxn.init_properties(bpy.context.scene.mcell.parameter_system)
                 rxn.build_properties_from_data_model ( context, r )
 
     def check_properties_after_building ( self, context ):
@@ -629,7 +629,7 @@ class MCellReactionsListProperty(bpy.types.PropertyGroup):
 
     def draw_layout(self, context, layout):
         # layout = self.layout
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )

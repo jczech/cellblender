@@ -219,12 +219,12 @@ class MCELL_OT_print_profiling(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        app = context.scene.mcell
+        app = bpy.context.scene.mcell
         print_statistics(app)
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        app = context.scene.mcell
+        app = bpy.context.scene.mcell
         print_statistics(app)
         return {'RUNNING_MODAL'}
 
@@ -259,7 +259,7 @@ class MCELL_OT_clear_profiling(bpy.types.Operator):
 #    #bl_options = {'REGISTER', 'UNDO'}
 #    bl_options = {'REGISTER' }
 #    def execute(self, context):
-#        mcell = context.scene.mcell
+#        mcell = bpy.context.scene.mcell
 #        ps = mcell.parameter_system
 #        ps.evaluate_all_gp_expressions ( context )
 #        return {'FINISHED'}
@@ -272,7 +272,7 @@ class MCELL_OT_clear_profiling(bpy.types.Operator):
 #    #bl_options = {'REGISTER', 'UNDO'}
 #    bl_options = {'REGISTER' }
 #    def execute(self, context):
-#        mcell = context.scene.mcell
+#        mcell = bpy.context.scene.mcell
 #        ps = mcell.parameter_system
 #        dbprint ( "This doesn't do anything at this time" )
 #        return {'FINISHED'}
@@ -337,7 +337,7 @@ class MCELL_OT_print_gen_parameters(bpy.types.Operator):
 
     def execute(self, context):
         #global global_params
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         ps = mcell.parameter_system
         # ps.init_parameter_system()
 
@@ -367,7 +367,7 @@ class MCELL_OT_print_par_expressions(bpy.types.Operator):
 
     def execute(self, context):
         #global global_params
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         ps = mcell.parameter_system
         # ps.init_parameter_system()
 
@@ -413,7 +413,7 @@ class MCELL_OT_print_pan_parameters(bpy.types.Operator):
 
     def execute(self, context):
         #global global_params
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         ps = mcell.parameter_system
         fw = ps.max_field_width
         # ps.init_parameter_system()
@@ -469,8 +469,8 @@ class MCELL_OT_add_par_list(bpy.types.Operator):
         return name
 
     def execute(self, context):
-        num_pars_to_gen = context.scene.mcell.parameter_system.num_pars_to_gen
-        num_back = context.scene.mcell.parameter_system.num_pars_back
+        num_pars_to_gen = bpy.context.scene.mcell.parameter_system.num_pars_to_gen
+        num_back = bpy.context.scene.mcell.parameter_system.num_pars_back
         make_loop = False
 
         pars = []
@@ -499,7 +499,7 @@ class MCELL_OT_add_par_list(bpy.types.Operator):
                 pars[mid-1]['par_expression'] += " + " + pars[mid]['par_name']
 
         dbprint ( "Before call to add_general_parameters_from_list" )
-        context.scene.mcell.parameter_system.add_general_parameters_from_list ( context, pars )
+        bpy.context.scene.mcell.parameter_system.add_general_parameters_from_list ( context, pars )
         dbprint ( "After call to add_general_parameters_from_list" )
         return {'FINISHED'}
 
@@ -516,7 +516,7 @@ class MCELL_OT_add_parameter(bpy.types.Operator):
     bl_description = "Add a new parameter"
     bl_options = {'REGISTER', 'UNDO'}
     def execute(self, context):
-        context.scene.mcell.parameter_system.add_general_parameter()
+        bpy.context.scene.mcell.parameter_system.add_general_parameter()
         return {'FINISHED'}
 
 class MCELL_OT_remove_parameter(bpy.types.Operator):
@@ -525,7 +525,7 @@ class MCELL_OT_remove_parameter(bpy.types.Operator):
     bl_description = "Remove selected parameter"
     bl_options = {'REGISTER', 'UNDO'}
     def execute(self, context):
-        status = context.scene.mcell.parameter_system.remove_active_parameter(context)
+        status = bpy.context.scene.mcell.parameter_system.remove_active_parameter(context)
         if status != "":
             self.report({'ERROR'}, status)
         return {'FINISHED'}
@@ -537,7 +537,7 @@ class MCELL_OT_remove_all_pars(bpy.types.Operator):
     bl_options = {'REGISTER'}
     def execute(self, context):
         status = ""
-        ps = context.scene.mcell.parameter_system
+        ps = bpy.context.scene.mcell.parameter_system
         num_deleted = 1
         while ( len(ps.general_parameter_list) > 0 ) and ( num_deleted > 0 ):
             # Delete from end since that's most likely to be the fastest
@@ -564,7 +564,7 @@ class MCELL_OT_remove_all_pars(bpy.types.Operator):
 
 class MCELL_UL_draw_parameter(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         #icon = 'FILE_TICK'
         #layout.label(text="parameter goes here", icon=icon)
         ps = mcell.parameter_system
@@ -628,10 +628,10 @@ class MCELL_PT_parameter_system(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return (context.scene is not None)
+        return (bpy.context.scene is not None)
 
     def draw(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         ps = mcell.parameter_system
         ps.draw_panel ( context, self.layout )
 """
@@ -672,7 +672,7 @@ class PanelParameterData ( bpy.types.PropertyGroup ):
 
     @profile('PanelParameterData.update_panel_expression')
     def update_panel_expression (self, context, gl=None):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         parameter_system = mcell.parameter_system
         dbprint ( "Update the panel expression for " + self.name + " with keys = " + str(self.keys()) )
         dbprint ( "Updating " + str(parameter_system.panel_parameter_list[self.name]) )
@@ -1095,17 +1095,17 @@ def update_parameter_index ( self, context ):
 ##@profile('ParameterSystemCallBack.update_parameter_name')  # profiling callbacks can be problematic
 def update_parameter_name ( self, context ):
     self.update_parameter_name ( context, interactive=True )
-    context.scene.mcell.parameter_system.last_parameter_update_time = str(time.time())
+    bpy.context.scene.mcell.parameter_system.last_parameter_update_time = str(time.time())
 
 ##@profile('ParameterSystemCallBack.update_parameter_elist')  # profiling callbacks can be problematic
 def update_parameter_elist ( self, context ):
     self.update_parameter_elist ( context, interactive=True )
-    context.scene.mcell.parameter_system.last_parameter_update_time = str(time.time())
+    bpy.context.scene.mcell.parameter_system.last_parameter_update_time = str(time.time())
 
 ##@profile('ParameterSystemCallBack.update_parameter_expression')  # profiling callbacks can be problematic
 def update_parameter_expression ( self, context ):
     self.update_parameter_expression ( context, interactive=True )
-    context.scene.mcell.parameter_system.last_parameter_update_time = str(time.time())
+    bpy.context.scene.mcell.parameter_system.last_parameter_update_time = str(time.time())
 
 ##@profile('ParameterSystemCallBack.update_parameter_units')  # profiling callbacks can be problematic
 def update_parameter_units ( self, context ):
@@ -1118,12 +1118,12 @@ def update_parameter_desc ( self, context ):
 ##@profile('ParameterSystemCallBack.update_sweep_expression')  # profiling callbacks can be problematic
 def update_sweep_expression ( self, context ):
     self.update_sweep_expression ( context, interactive=True )
-    context.scene.mcell.parameter_system.last_parameter_update_time = str(time.time())
+    bpy.context.scene.mcell.parameter_system.last_parameter_update_time = str(time.time())
 
 ##@profile('ParameterSystemCallBack.update_sweep_enabled')  # profiling callbacks can be problematic
 def update_sweep_enabled ( self, context ):
     self.update_sweep_enabled ( context, interactive=True )
-    context.scene.mcell.parameter_system.last_parameter_update_time = str(time.time())
+    bpy.context.scene.mcell.parameter_system.last_parameter_update_time = str(time.time())
 
 
 #######################################################################
@@ -2447,7 +2447,7 @@ class ParameterSystemPropertyGroup ( bpy.types.PropertyGroup ):
     @profile('ParameterSystem.draw_layout')
     def draw_layout ( self, context, layout ):
 
-        if context.scene.mcell.cellblender_preferences.debug_level > 0:
+        if bpy.context.scene.mcell.cellblender_preferences.debug_level > 0:
             ### This is here for help during debugging when errors might keep the rest of the panel from being drawn
             self.draw_debug_items ( context, layout )
 

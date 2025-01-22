@@ -49,7 +49,7 @@ class MCELL_OT_region_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.object.mcell.regions.add_region(context)
+        bpy.context.object.mcell.regions.add_region(context)
         return {'FINISHED'}
 
 
@@ -60,7 +60,7 @@ class MCELL_OT_region_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.object.mcell.regions.remove_region(context)
+        bpy.context.object.mcell.regions.remove_region(context)
         return {'FINISHED'}
 
 
@@ -71,7 +71,7 @@ class MCELL_OT_region_remove_all(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.object.mcell.regions.remove_all_regions(context)
+        bpy.context.object.mcell.regions.remove_all_regions(context)
         return {'FINISHED'}
 
 
@@ -82,7 +82,7 @@ class MCELL_OT_region_faces_assign(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        reg = context.object.mcell.regions.get_active_region()
+        reg = bpy.context.object.mcell.regions.get_active_region()
         if reg:
             reg.assign_region_faces(context)
         return {'FINISHED'}
@@ -95,7 +95,7 @@ class MCELL_OT_region_faces_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        reg = context.object.mcell.regions.get_active_region()
+        reg = bpy.context.object.mcell.regions.get_active_region()
         if reg:
             reg.remove_region_faces(context)
         return {'FINISHED'}
@@ -108,7 +108,7 @@ class MCELL_OT_region_faces_select(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        reg = context.object.mcell.regions.get_active_region()
+        reg = bpy.context.object.mcell.regions.get_active_region()
         if reg:
             reg.select_region_faces(context)
         return {'FINISHED'}
@@ -121,7 +121,7 @@ class MCELL_OT_region_faces_select_all(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        for reg in context.object.mcell.regions.region_list:
+        for reg in bpy.context.object.mcell.regions.region_list:
             reg.select_region_faces(context)
         return {'FINISHED'}
 
@@ -133,7 +133,7 @@ class MCELL_OT_region_faces_deselect(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        reg = context.object.mcell.regions.get_active_region()
+        reg = bpy.context.object.mcell.regions.get_active_region()
         if reg:
             reg.deselect_region_faces(context)
         return {'FINISHED'}
@@ -145,7 +145,7 @@ class MCELL_OT_eliminate_overlapping_faces(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        reg = context.object.mcell.regions.get_active_region()
+        reg = bpy.context.object.mcell.regions.get_active_region()
         if reg:
             reg.eliminate_overlapping_faces(context)
         return{'FINISHED'}
@@ -157,7 +157,7 @@ class MCELL_OT_eliminate_all_overlaps(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(slef, context):
-        for reg in bpy.data.objects[context.active_object.name].mcell.regions.region_list:
+        for reg in bpy.data.objects[bpy.context.active_object.name].mcell.regions.region_list:
             reg.eliminate_overlapping_faces(context)
             print('Eliminating overlaps in', reg.name)
         return{'FINISHED'}
@@ -169,7 +169,7 @@ class MCELL_OT_face_get_regions(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.object.mcell.regions.face_get_regions(context)
+        bpy.context.object.mcell.regions.face_get_regions(context)
         return {'FINISHED'}
 
 
@@ -180,7 +180,7 @@ class MCELL_OT_faces_get_regions(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.object.mcell.regions.faces_get_regions(context)
+        bpy.context.object.mcell.regions.faces_get_regions(context)
         return {'FINISHED'}
 
 
@@ -198,7 +198,7 @@ class MCELL_UL_check_region(bpy.types.UIList):
 # Region Callbacks:
 
 def region_update(self, context):
-    context.object.mcell.regions.region_update()
+    bpy.context.object.mcell.regions.region_update()
     return
 
 
@@ -232,7 +232,7 @@ class MCellSurfaceRegionProperty(bpy.types.PropertyGroup):
 
 
     def assign_region_faces(self, context):
-        mesh = context.active_object.data
+        mesh = bpy.context.active_object.data
         if (mesh.total_face_sel > 0):
             face_set = self.get_region_faces(mesh) 
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -247,7 +247,7 @@ class MCellSurfaceRegionProperty(bpy.types.PropertyGroup):
 
 
     def remove_region_faces(self, context):
-        mesh = context.active_object.data
+        mesh = bpy.context.active_object.data
         if (mesh.total_face_sel > 0):
             face_set = self.get_region_faces(mesh) 
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -263,44 +263,44 @@ class MCellSurfaceRegionProperty(bpy.types.PropertyGroup):
 
 
     def select_region_faces(self, context):
-        mesh = context.active_object.data
+        mesh = bpy.context.active_object.data
         face_set = self.get_region_faces(mesh)
-        msm = context.scene.tool_settings.mesh_select_mode[0:3]
-        context.scene.tool_settings.mesh_select_mode = (False, False, True)
+        msm = bpy.context.scene.tool_settings.mesh_select_mode[0:3]
+        bpy.context.scene.tool_settings.mesh_select_mode = (False, False, True)
         bpy.ops.object.mode_set(mode='OBJECT')
         for f in face_set:
             mesh.polygons[f].select = True
         bpy.ops.object.mode_set(mode='EDIT')
-        context.scene.tool_settings.mesh_select_mode = msm
+        bpy.context.scene.tool_settings.mesh_select_mode = msm
 
         return {'FINISHED'}
 
 
     def deselect_region_faces(self, context):
-        mesh = context.active_object.data
+        mesh = bpy.context.active_object.data
         face_set = self.get_region_faces(mesh)
-        msm = context.scene.tool_settings.mesh_select_mode[0:3]
-        context.scene.tool_settings.mesh_select_mode = (False, False, True)
+        msm = bpy.context.scene.tool_settings.mesh_select_mode[0:3]
+        bpy.context.scene.tool_settings.mesh_select_mode = (False, False, True)
         bpy.ops.object.mode_set(mode='OBJECT')
         for f in face_set:
             mesh.polygons[f].select = False
         bpy.ops.object.mode_set(mode='EDIT')
-        context.scene.tool_settings.mesh_select_mode = msm
+        bpy.context.scene.tool_settings.mesh_select_mode = msm
 
         return {'FINISHED'}
 
     def eliminate_overlapping_faces(self, context):
         bpy.ops.mesh.select_all(action = 'DESELECT')
-        #mesh = context.active_object.data
+        #mesh = bpy.context.active_object.data
         self.select_region_faces(context)
-        reg_names = context.object.mcell.regions.faces_get_regions(context)
+        reg_names = bpy.context.object.mcell.regions.faces_get_regions(context)
         for reg_name in reg_names:
             if reg_name != self.name:
-                reg = bpy.data.objects[context.active_object.name].mcell.regions.region_list[reg_name]
+                reg = bpy.data.objects[bpy.context.active_object.name].mcell.regions.region_list[reg_name]
                 reg.remove_region_faces(context)
-                #bpy.data.objects[context.active_object.name].mcell.regions.active_reg_index = bpy.data.objects[context.active_object.name].mcell.regions.region_list.find(reg)
+                #bpy.data.objects[bpy.context.active_object.name].mcell.regions.active_reg_index = bpy.data.objects[bpy.context.active_object.name].mcell.regions.region_list.find(reg)
                 #bpy.ops.mcell.region_faces_remove()
-        #bpy.data.objects[context.active_object.name].mcell.regions.active_reg_index = bpy.data.objects[context.active_object.name].mcell.regions.region_list.find(self.name)
+        #bpy.data.objects[bpy.context.active_object.name].mcell.regions.active_reg_index = bpy.data.objects[bpy.context.active_object.name].mcell.regions.region_list.find(self.name)
 
 
     def destroy_region(self, context):
@@ -308,7 +308,7 @@ class MCellSurfaceRegionProperty(bpy.types.PropertyGroup):
         id = str(self.id)
 
         # POSSIBLE FIXME? GET PARENT BLEND OBJECT OF THIS REGION_LIST
-        obj = context.active_object
+        obj = bpy.context.active_object
         mesh = obj.data
         if mesh.get('mcell'):
           if mesh['mcell'].get('regions'):
@@ -321,7 +321,7 @@ class MCellSurfaceRegionProperty(bpy.types.PropertyGroup):
 
     def face_in_region(self, context, face_index):
         """Return True if face is in this region"""
-        mesh = context.active_object.data
+        mesh = bpy.context.active_object.data
         reg_faces = self.get_region_faces(mesh)
         return(face_index in reg_faces)
 
@@ -331,7 +331,7 @@ class MCellSurfaceRegionProperty(bpy.types.PropertyGroup):
         self.id = id
         str_id = str(self.id)
 
-        mesh = context.active_object.data
+        mesh = bpy.context.active_object.data
         if not mesh.get("mcell"):
             mesh["mcell"] = {}
         if not mesh["mcell"].get("regions"):
@@ -493,7 +493,7 @@ class MCellSurfaceRegionListProperty(bpy.types.PropertyGroup):
     def face_get_regions(self,context):
         """ Return the list of region IDs associated with one selected face """
         reg_list = ""
-        mesh = context.active_object.data
+        mesh = bpy.context.active_object.data
         if (mesh.total_face_sel == 1):
           bpy.ops.object.mode_set(mode='OBJECT')
           face_index = [f.index for f in mesh.polygons if f.select][0]
@@ -508,7 +508,7 @@ class MCellSurfaceRegionListProperty(bpy.types.PropertyGroup):
     def faces_get_regions(self,context):
         """ Return list of region names associated with the selected faces """
         reg_info = []
-        mesh = context.active_object.data
+        mesh = bpy.context.active_object.data
         if (mesh.total_face_sel > 0):
           bpy.ops.object.mode_set(mode='OBJECT')
           selface_set = set([f.index for f in mesh.polygons if f.select])
@@ -638,7 +638,7 @@ class MCellSurfaceRegionListProperty(bpy.types.PropertyGroup):
         self.draw_layout ( context, layout )
 
     def draw_layout(self, context, layout):
-        active_obj = context.active_object
+        active_obj = bpy.context.active_object
 
         if (not (active_obj is None)) and (active_obj.type == 'MESH'):
 
@@ -809,7 +809,7 @@ def object_regions_format_update(context):
     if not context:
         context = bpy.context
 
-    scn_objs = context.scene.collection.children[0].objects
+    scn_objs = bpy.context.scene.collection.children[0].objects
     objs = [obj for obj in scn_objs if obj.type == 'MESH']
     for obj in objs:
           obj.mcell.regions.format_update(obj)
@@ -831,13 +831,13 @@ class MCELL_OT_vertex_groups_to_regions(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        scn = context.scene
-        select_objs = context.selected_objects
+        scn = bpy.context.scene
+        select_objs = bpy.context.selected_objects
 
         # For each selected object:
         for obj in select_objs:
             print(obj.name)
-            context.view_layer.objects.active = obj
+            bpy.context.view_layer.objects.active = obj
             obj.select_set(True)
             obj_regs = obj.mcell.regions
             vert_groups = obj.vertex_groups

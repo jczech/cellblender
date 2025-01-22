@@ -85,7 +85,7 @@ class DataBrowserPropertyGroup(bpy.types.PropertyGroup):
 
 
     def draw_layout ( self, context, layout ):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         scripting = mcell.scripting
 
         row = layout.row()
@@ -270,7 +270,7 @@ class FromDMOperator(bpy.types.Operator):
     def invoke(self, context, event):
         global dm
         global dmi
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         scripting = mcell.scripting
         db = scripting.data_browser
         dm = mcell.build_data_model_from_properties ( context, geometry=scripting.include_geometry_in_dm,
@@ -287,7 +287,7 @@ class ClearBrowserOperator(bpy.types.Operator):
     def invoke(self, context, event):
         global dm
         global dmi
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         scripting = mcell.scripting
         db = scripting.data_browser
         db.clear_lists()
@@ -301,7 +301,7 @@ class BrowserOpenAllOperator(bpy.types.Operator):
     bl_label = "Open All"
 
     def invoke(self, context, event):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         scripting = mcell.scripting
         db = scripting.data_browser
         for s in db.show_list:
@@ -314,7 +314,7 @@ class BrowserCloseAllOperator(bpy.types.Operator):
     bl_label = "Close All"
 
     def invoke(self, context, event):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         scripting = mcell.scripting
         db = scripting.data_browser
         for s in db.show_list:
@@ -327,7 +327,7 @@ class FromFileOperator(bpy.types.Operator):
     bl_label = "From File"
 
     def invoke(self, context, event):
-        db = context.scene.mcell.scripting.data_browser
+        db = bpy.context.scene.mcell.scripting.data_browser
         db.convert_text_to_properties ( context, self.layout)
         return{'FINISHED'}
 
@@ -348,7 +348,7 @@ class Data_Browser_Panel(bpy.types.Panel):
   bl_options = {'DEFAULT_CLOSED'}
 
   def draw(self, context):
-    db = context.scene.data_browser
+    db = bpy.context.scene.data_browser
     db.draw_layout(context, self.layout)
 """
 
@@ -385,7 +385,7 @@ class MCELL_OT_scripting_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        scripting = context.scene.mcell.scripting
+        scripting = bpy.context.scene.mcell.scripting
         scripting.scripting_list.add()
         scripting.active_scripting_index = len(scripting.scripting_list)-1
         check_scripting(self, context)
@@ -399,7 +399,7 @@ class MCELL_OT_mcell4_scripting_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        scripting = context.scene.mcell.scripting
+        scripting = bpy.context.scene.mcell.scripting
         scripting.mcell4_scripting_list.add()
         scripting.active_mcell4_scripting_index = len(scripting.mcell4_scripting_list)-1
         check_scripting(self, context)
@@ -413,7 +413,7 @@ class MCELL_OT_scripting_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        scripting = context.scene.mcell.scripting
+        scripting = bpy.context.scene.mcell.scripting
         scripting.scripting_list.remove(scripting.active_scripting_index)
         scripting.active_scripting_index -= 1
         if (scripting.active_scripting_index < 0):
@@ -430,7 +430,7 @@ class MCELL_OT_mcell4_scripting_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        scripting = context.scene.mcell.scripting
+        scripting = bpy.context.scene.mcell.scripting
         scripting.mcell4_scripting_list.remove(scripting.active_mcell4_scripting_index)
         scripting.active_mcell4_scripting_index -= 1
         if (scripting.active_mcell4_scripting_index < 0):
@@ -447,7 +447,7 @@ class MCELL_OT_scripting_refresh(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        scripting = context.scene.mcell.scripting
+        scripting = bpy.context.scene.mcell.scripting
         check_scripting(self, context)
         update_available_scripts ( scripting )
         return {'FINISHED'}
@@ -460,7 +460,7 @@ class MCELL_OT_scripting_execute(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        scripting = context.scene.mcell.scripting
+        scripting = bpy.context.scene.mcell.scripting
         print ( "Executing Script" )
         scripting.execute_selected_script(context)
         return {'FINISHED'}
@@ -476,7 +476,7 @@ class CopyDataModelFromSelectedProps(bpy.types.Operator):
 
     def execute(self, context):
         print ( "Copying CellBlender Data Model:" )
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         scripting = mcell.scripting
         section = str(mcell.scripting.dm_section)
         print ( "Copying section " + section )
@@ -512,7 +512,7 @@ class CopyDataModelFromSelectedProps(bpy.types.Operator):
 
 
 def check_scripting(self, context):
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     scripting_list = mcell.scripting.scripting_list
     if len(scripting_list) > 0:
         scripting = scripting_list[mcell.scripting.active_scripting_index]
@@ -638,7 +638,7 @@ class CellBlenderScriptingProperty(bpy.types.PropertyGroup):
         # Check that the data model version matches the version for this property group
         if dm['data_model_version'] != "DM_2016_03_15_1900":
             data_model.handle_incompatible_data_model ( "Error: Unable to upgrade CellBlenderScriptingProperty data model to current version." )
-        self.init_properties(context.scene.mcell.parameter_system)
+        self.init_properties(bpy.context.scene.mcell.parameter_system)
 
         self.name = dm["name"]
         self.internal_file_name = dm["internal_file_name"]
@@ -683,7 +683,7 @@ class CellBlenderScriptingProperty(bpy.types.PropertyGroup):
         
 
     def draw_layout ( self, context, layout ):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         ps = mcell.parameter_system
 
         if not mcell.initialized:
@@ -699,12 +699,12 @@ class CellBlenderScriptingProperty(bpy.types.PropertyGroup):
 
                 if (self.mdl_python == "mdl"):
                     row.prop_search ( self, "internal_file_name",
-                                      context.scene.mcell.scripting, "internal_mdl_scripts_list",
+                                      bpy.context.scene.mcell.scripting, "internal_mdl_scripts_list",
                                       text="File:", icon='TEXT' )
                     row.operator("mcell.scripting_refresh", icon='FILE_REFRESH', text="")
                     """
                     layout.label ( "Internal MDL Scripts:" )
-                    for txt in context.scene.mcell.scripting.internal_mdl_scripts_list:
+                    for txt in bpy.context.scene.mcell.scripting.internal_mdl_scripts_list:
                         box = layout.box()
                         box.label ( bpy.data.texts[txt.name].name )
                         box.label ( bpy.data.texts[txt.name].as_string() )
@@ -712,12 +712,12 @@ class CellBlenderScriptingProperty(bpy.types.PropertyGroup):
 
                 if (self.mdl_python == "python"):
                     row.prop_search ( self, "internal_file_name",
-                                      context.scene.mcell.scripting, "internal_python_scripts_list",
+                                      bpy.context.scene.mcell.scripting, "internal_python_scripts_list",
                                       text="File:", icon='TEXT' )
                     row.operator("mcell.scripting_refresh", icon='FILE_REFRESH', text="")
                     """
                     layout.label ( "Internal Python Scripts:" )
-                    for txt in context.scene.mcell.scripting.internal_python_scripts_list:
+                    for txt in bpy.context.scene.mcell.scripting.internal_python_scripts_list:
                         box = layout.box()
                         box.label ( bpy.data.texts[txt.name].name )
                         box.label ( bpy.data.texts[txt.name].as_string() )
@@ -772,7 +772,7 @@ class CellBlenderMCell4ScriptingProperty(bpy.types.PropertyGroup):
         # Check that the data model version matches the version for this property group
         if dm['data_model_version'] != "DM_2016_03_15_1900":
             data_model.handle_incompatible_data_model ( "Error: Unable to upgrade CellBlenderScriptingProperty data model to current version." )
-        self.init_properties(context.scene.mcell.parameter_system)
+        self.init_properties(bpy.context.scene.mcell.parameter_system)
 
         self.name = dm["name"]
         self.internal_file_name = dm["internal_file_name"]
@@ -798,7 +798,7 @@ class CellBlenderMCell4ScriptingProperty(bpy.types.PropertyGroup):
         
 
     def draw_layout ( self, context, layout ):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         ps = mcell.parameter_system
 
         if not mcell.initialized:
@@ -811,7 +811,7 @@ class CellBlenderMCell4ScriptingProperty(bpy.types.PropertyGroup):
 
             if (self.internal_external == "internal"):
                 row.prop_search ( self, "internal_file_name",
-                                  context.scene.mcell.scripting, "internal_python_scripts_list",
+                                  bpy.context.scene.mcell.scripting, "internal_python_scripts_list",
                                   text="File:", icon='TEXT' )
                 row.operator("mcell.scripting_refresh", icon='FILE_REFRESH', text="")
 
@@ -955,7 +955,7 @@ class CellBlenderScriptingPropertyGroup(bpy.types.PropertyGroup):
         # Check that the data model version matches the version for this property group
         if dm['data_model_version'] != "DM_2017_11_30_1830":
             data_model.handle_incompatible_data_model ( "Error: Unable to upgrade CellBlenderScriptingPropertyGroup data model to current version." )
-        self.init_properties(context.scene.mcell.parameter_system)
+        self.init_properties(bpy.context.scene.mcell.parameter_system)
 
         self.ignore_cellblender_data = dm['ignore_cellblender_data']
         #self.show_simulation_scripting = dm["show_simulation_scripting"]
@@ -971,7 +971,7 @@ class CellBlenderScriptingPropertyGroup(bpy.types.PropertyGroup):
                 self.scripting_list.add()
                 self.active_scripting_index = len(self.scripting_list)-1
                 s = self.scripting_list[self.active_scripting_index]
-                # s.init_properties(context.scene.mcell.parameter_system)
+                # s.init_properties(bpy.context.scene.mcell.parameter_system)
                 s.build_properties_from_data_model ( context, dm_s )
 
         while len(self.mcell4_scripting_list) > 0:
@@ -981,7 +981,7 @@ class CellBlenderScriptingPropertyGroup(bpy.types.PropertyGroup):
                 self.mcell4_scripting_list.add()
                 self.active_mcell4_scripting_index = len(self.mcell4_scripting_list)-1
                 s = self.mcell4_scripting_list[self.active_mcell4_scripting_index]
-                # s.init_properties(context.scene.mcell.parameter_system)
+                # s.init_properties(bpy.context.scene.mcell.parameter_system)
                 s.build_properties_from_data_model ( context, dm_s )
 
         if scripts:
@@ -1002,7 +1002,7 @@ class CellBlenderScriptingPropertyGroup(bpy.types.PropertyGroup):
 
 
     def execute_selected_script ( self, context ):
-        mcell_dm = context.scene.mcell.build_data_model_from_properties ( context, geometry=True )
+        mcell_dm = bpy.context.scene.mcell.build_data_model_from_properties ( context, geometry=True )
         if (self.dm_internal_external == "internal"):
             print ( "Executing internal script" )
             if not self.dm_internal_file_name in bpy.data.texts:
@@ -1029,9 +1029,9 @@ class CellBlenderScriptingPropertyGroup(bpy.types.PropertyGroup):
                 # If this is NOT set, then the data model will be assumed to match the current version
                 #if (self.upgrade_data_model_for_script):
                 if self.force_property_update:
-                    dm['mcell'] = context.scene.mcell.upgrade_data_model ( dm['mcell'] )
+                    dm['mcell'] = bpy.context.scene.mcell.upgrade_data_model ( dm['mcell'] )
                     # Regenerate the Blender properties to reflect this data model ... including geometry
-                    context.scene.mcell.build_properties_from_data_model ( context, dm['mcell'], geometry=True )
+                    bpy.context.scene.mcell.build_properties_from_data_model ( context, dm['mcell'], geometry=True )
             elif False:
                 # This version runs the script from the project directory
                 original_cwd = os.getcwd()
@@ -1056,7 +1056,7 @@ class CellBlenderScriptingPropertyGroup(bpy.types.PropertyGroup):
 
     def draw_layout ( self, context, layout ):
         """ Draw the scripting "panel" within the layout """
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell4_mode = mcell.cellblender_preferences.mcell4_mode
         ps = mcell.parameter_system
 
@@ -1197,7 +1197,7 @@ class CellBlenderScriptingPropertyGroup(bpy.types.PropertyGroup):
                         if (self.dm_internal_external == "internal"):
     
                             row.prop_search ( self, "dm_internal_file_name",
-                                              context.scene.mcell.scripting, "internal_python_scripts_list",
+                                              bpy.context.scene.mcell.scripting, "internal_python_scripts_list",
                                               text="File:", icon='TEXT' )
                             row.operator("mcell.scripting_refresh", icon='FILE_REFRESH', text="")
     

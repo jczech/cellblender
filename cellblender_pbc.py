@@ -71,7 +71,7 @@ class MCellPBCPropertyGroup(bpy.types.PropertyGroup):
         description="The end of the Periodic boundary on the z-axis")
     #Function to draw the panel
     def draw_layout(self, context, layout):
-        mcell4_mode = context.scene.mcell.cellblender_preferences.mcell4_mode
+        mcell4_mode = bpy.context.scene.mcell.cellblender_preferences.mcell4_mode
         if mcell4_mode:
             layout.label(text="Periodic Boundary Conditions are not supported in MCell4.")
         else:

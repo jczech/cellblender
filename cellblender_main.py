@@ -92,7 +92,7 @@ def mcell_valid_update(context):
     print ( "load post handler: cellblender_main.mcell_valid_update() called" )
     if not context:
         context = bpy.context
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     binary_path = mcell.cellblender_preferences.mcell_binary
     mcell.cellblender_preferences.mcell_binary_valid = cellblender_utils.is_executable ( binary_path )
     # print ( "mcell_binary_valid = ", mcell.cellblender_preferences.mcell_binary_valid )
@@ -104,7 +104,7 @@ def init_properties(context):
     print ( "load post handler: cellblender_main.init_properties() called" )
     if not context:
         context = bpy.context
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     if not mcell.initialized:
         mcell.init_properties(context)
         mcell.initialized = True
@@ -171,7 +171,7 @@ class PP_OT_init_mcell(bpy.types.Operator):
 
     def execute(self, context):
         print ( "Initializing CellBlender" )
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell.init_properties(context)
         mcell.rxn_output.init_properties(mcell.parameter_system)
         print ( "CellBlender has been initialized" )
@@ -190,7 +190,7 @@ class MCELL_PT_main_panel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return (context.scene is not None)
+        return (bpy.context.scene is not None)
 
 
     def draw_header(self, context):
@@ -206,7 +206,7 @@ class MCELL_PT_main_panel(bpy.types.Panel):
             self.layout.label(text="", icon_value=icon)
 
     def draw(self, context):
-        context.scene.mcell.cellblender_main_panel.draw_self(context,self.layout)
+        bpy.context.scene.mcell.cellblender_main_panel.draw_self(context,self.layout)
 
 
 
@@ -275,7 +275,7 @@ class MCELL_OT_export_dm(bpy.types.Operator):
     def execute(self, context):
 
         print ( "Export Data Model Operator called" )
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         if 'data_model' in mcell.keys():
             # There is a data model present
             dm = data_model.unpickle_data_model(mcell['data_model'])
@@ -300,7 +300,7 @@ class MCELL_OT_export_dm_json(bpy.types.Operator):
     def execute(self, context):
 
         print ( "Export Data Model JSON Operator called" )
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         if 'data_model' in mcell.keys():
             # There is a data model present
             dm = data_model.unpickle_data_model(mcell['data_model'])
@@ -324,7 +324,7 @@ class MCELL_OT_delete(bpy.types.Operator):
 
     def execute(self, context):
         print ( "Deleting CellBlender Collection Properties" )
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell.remove_properties(context)
         print ( "Finished Deleting CellBlender Collection Properties" )
         return {'FINISHED'}
@@ -340,7 +340,7 @@ class CBM_OT_refresh_operator(bpy.types.Operator):
     def execute(self, context):
         print ( "Refreshing/Reloading the Parameters, Molecules, and Geometry ..." )
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         if cellblender.current_data_model == None:
             # Build the entire data model
             cellblender.current_data_model = { 'mcell': mcell.build_data_model_from_properties ( context ) }
@@ -349,7 +349,7 @@ class CBM_OT_refresh_operator(bpy.types.Operator):
             cellblender.current_data_model['mcell']['parameter_system'] = mcell.parameter_system.build_data_model_from_properties(context)
 
         bpy.ops.mcell.update_data_layout()
-        mcell.model_objects.update_scene ( context.scene, force=True )
+        mcell.model_objects.update_scene ( bpy.context.scene, force=True )
         bpy.ops.mcell.read_viz_data()
         return {'FINISHED'}
 
@@ -503,7 +503,7 @@ class CellBlenderMainPanelPropertyGroup(bpy.types.PropertyGroup):
     def draw_self (self, context, layout):
 
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.get ( 'saved_by_source_id' ):
             # This .blend file has no CellBlender data at all or was created with CellBlender RC3 / RC4
@@ -782,26 +782,26 @@ class CellBlenderMainPanelPropertyGroup(bpy.types.PropertyGroup):
                 if self.preferences_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Project Settings", icon='SETTINGS' )
-                    context.scene.mcell.project_settings.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.project_settings.draw_layout ( context, layout )
 
                     layout.box() # Use as a separator
                     layout.label ( text="Preferences", icon='PREFERENCES' )
-                    context.scene.mcell.cellblender_preferences.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.cellblender_preferences.draw_layout ( context, layout )
 
                 if self.scripting_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Model Scripts", icon='SCRIPT' )
-                    context.scene.mcell.scripting.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.scripting.draw_layout ( context, layout )
 
                 if self.parameters_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Model Parameters", icon='SEQ_SEQUENCER' )
-                    context.scene.mcell.parameter_system.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.parameter_system.draw_layout ( context, layout )
 
                 if self.molecule_select:
                     layout.box() # Use as a separator
                     layout.label(text="Defined Molecules", icon='FORCE_LENNARDJONES')
-                    context.scene.mcell.molecules.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.molecules.draw_layout ( context, layout )
 
                 if self.reaction_select:
                     layout.box() # Use as a separator
@@ -812,67 +812,67 @@ class CellBlenderMainPanelPropertyGroup(bpy.types.PropertyGroup):
                         react_img_sel = bpy.data.images.get('reaction_s')
                         reaction_s = layout.icon(react_img_sel)
                         layout.label ( text="Defined Reactions", icon_value=reaction_s )
-                    context.scene.mcell.reactions.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.reactions.draw_layout ( context, layout )
 
                 if self.placement_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Molecule Release/Placement", icon='GROUP_VERTEX' )
-                    context.scene.mcell.release_sites.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.release_sites.draw_layout ( context, layout )
 
                 if self.rel_patterns_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Release Patterns", icon='TIME' )
-                    context.scene.mcell.release_patterns.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.release_patterns.draw_layout ( context, layout )
 
                 if self.objects_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Model Objects", icon='MESH_ICOSPHERE' )  # Or 'MESH_CUBE'
-                    context.scene.mcell.model_objects.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.model_objects.draw_layout ( context, layout )
                     # layout.box() # Use as a separator
-                    if context.object != None:
-                        context.object.mcell.regions.draw_layout(context, layout)
+                    if bpy.context.object != None:
+                        bpy.context.object.mcell.regions.draw_layout(context, layout)
 
                 if self.surf_classes_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Defined Surface Classes", icon='MOD_EXPLODE' )
-                    context.scene.mcell.surface_classes.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.surface_classes.draw_layout ( context, layout )
 
                 if self.surf_regions_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Assigned Surface Classes", icon='UV_DATA' )
-                    context.scene.mcell.mod_surf_regions.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.mod_surf_regions.draw_layout ( context, layout )
 
                 if self.partitions_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Partitions", icon='MESH_GRID' )
-                    context.scene.mcell.partitions.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.partitions.draw_layout ( context, layout )
 
                 if self.pbc_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Periodic Boundary Conditions", icon='GRID' )
-                    context.scene.mcell.pbc.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.pbc.draw_layout ( context, layout )
 
                 if self.graph_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Reaction Data Output", icon='GRAPH' )
-                    context.scene.mcell.rxn_output.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.rxn_output.draw_layout ( context, layout )
 
                 if self.viz_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Visualization", icon='SEQUENCE' )
-                    context.scene.mcell.viz_output.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.viz_output.draw_layout ( context, layout )
                     layout.box() # Use as a separator
-                    context.scene.mcell.mol_viz.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.mol_viz.draw_layout ( context, layout )
 
                 if self.init_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Run Simulation", icon='ARMATURE_DATA' )
-                    context.scene.mcell.initialization.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.initialization.draw_layout ( context, layout )
 
                 if self.examples_select:
                     layout.box() # Use as a separator
                     layout.label ( text="Examples", icon='MOD_BUILD' )
-                    context.scene.mcell.cellblender_examples.draw_layout ( context, layout )
+                    bpy.context.scene.mcell.cellblender_examples.draw_layout ( context, layout )
 
         # print ( "Bottom of CellBlenderMainPanelPropertyGroup.draw_self" )
 

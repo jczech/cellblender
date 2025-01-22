@@ -61,7 +61,7 @@ class MCELL_OT_release_site_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.release_sites.add_release_site ( context )
+        bpy.context.scene.mcell.release_sites.add_release_site ( context )
         return {'FINISHED'}
 
 
@@ -72,7 +72,7 @@ class MCELL_OT_release_site_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.release_sites.remove_active_rel_site(context)
+        bpy.context.scene.mcell.release_sites.remove_active_rel_site(context)
         self.report({'INFO'}, "Deleted Release Site")
         return {'FINISHED'}
 
@@ -125,7 +125,7 @@ def check_release_site_wrapped(context):
 def check_release_site_name(context):
     """Checks for duplicate or illegal release site name."""
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     rel_list = mcell.release_sites.mol_release_list
     rel = rel_list[mcell.release_sites.active_release_index]
 
@@ -148,7 +148,7 @@ def check_release_site_name(context):
 def check_release_molecule(context):
     """Checks for illegal release site molecule name."""
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     rel_list = mcell.release_sites.mol_release_list
     rel = rel_list[mcell.release_sites.active_release_index]
     mol = rel.molecule
@@ -176,8 +176,8 @@ def check_release_molecule(context):
 def check_release_object_expr(context):
     """Checks for illegal release object name."""
 
-    scn = context.scene
-    mcell = context.scene.mcell
+    scn = bpy.context.scene
+    mcell = bpy.context.scene.mcell
     rel_list = mcell.release_sites.mol_release_list
     rel = rel_list[mcell.release_sites.active_release_index]
     obj_list = mcell.model_objects.object_list
@@ -261,7 +261,7 @@ class MCell_Point_List_OT_point_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        rs = context.scene.mcell.release_sites
+        rs = bpy.context.scene.mcell.release_sites
         rs.mol_release_list[rs.active_release_index].add_point(context)
         return {'FINISHED'}
 
@@ -273,8 +273,8 @@ class MCell_Point_List_OT_point_add_cursor(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        cursor = context.scene.cursor_location
-        rs = context.scene.mcell.release_sites
+        cursor = bpy.context.scene.cursor_location
+        rs = bpy.context.scene.mcell.release_sites
         rs.mol_release_list[rs.active_release_index].add_point(context,x=cursor.x,y=cursor.y,z=cursor.z)
         return {'FINISHED'}
 
@@ -286,11 +286,11 @@ class MCell_Point_List_OT_point_add_obj_sel(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        cursor = context.scene.cursor_location
-        rs = context.scene.mcell.release_sites
+        cursor = bpy.context.scene.cursor_location
+        rs = bpy.context.scene.mcell.release_sites
         pl = rs.mol_release_list[rs.active_release_index]
 
-        for data_object in context.scene.collection.children[0].objects:
+        for data_object in bpy.context.scene.collection.children[0].objects:
             if data_object.type == 'MESH':
                 if data_object.select_get():
                     print ( " Selected object: " + data_object.name )
@@ -298,7 +298,7 @@ class MCell_Point_List_OT_point_add_obj_sel(bpy.types.Operator):
                     saved_hide_status = data_object.hide
                     data_object.hide = False
 
-                    context.view_layer.objects.active = data_object
+                    bpy.context.view_layer.objects.active = data_object
                     bpy.ops.object.mode_set(mode='OBJECT')
 
                     loc_x = data_object.location.x
@@ -327,7 +327,7 @@ class MCell_Point_List_OT_point_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        rs = context.scene.mcell.release_sites
+        rs = bpy.context.scene.mcell.release_sites
         rs.mol_release_list[rs.active_release_index].remove_active_point(context)
         return {'FINISHED'}
 
@@ -338,7 +338,7 @@ class MCell_Point_List_OT_point_remove_all(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        rs = context.scene.mcell.release_sites
+        rs = bpy.context.scene.mcell.release_sites
         rs.mol_release_list[rs.active_release_index].remove_all_points(context)
         return {'FINISHED'}
 
@@ -487,7 +487,7 @@ class MCellMoleculeReleaseProperty(bpy.types.PropertyGroup):
 
     def remove_properties ( self, context ):
         print ( "Removing all Molecule Release Site Properties... " )
-        ps = context.scene.mcell.parameter_system
+        ps = bpy.context.scene.mcell.parameter_system
         self.remove_all_points ( context )
         self.location_x.clear_ref ( ps )
         self.location_y.clear_ref ( ps )
@@ -605,7 +605,7 @@ class MCellMoleculeReleasePropertyGroup(bpy.types.PropertyGroup):
 
 
     def add_release_site ( self, context ):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         rel_id = self.allocate_available_id()  # Get the ID before allocating to allow it to reset
         self.mol_release_list.add()
         self.active_release_index = len(self.mol_release_list)-1
@@ -626,7 +626,7 @@ class MCellMoleculeReleasePropertyGroup(bpy.types.PropertyGroup):
     def remove_active_rel_site ( self, context ):
         """ Remove the active release site from the list of release sites """
         print ( "Call to: \"remove_active_rel_site\"" )
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         if len(self.mol_release_list) > 0:
             rel = self.mol_release_list[self.active_release_index]
             if rel:
@@ -693,7 +693,7 @@ class MCellMoleculeReleasePropertyGroup(bpy.types.PropertyGroup):
                 self.mol_release_list.add()
                 self.active_release_index = len(self.mol_release_list)-1
                 rs = self.mol_release_list[self.active_release_index]
-                rs.init_properties(context.scene.mcell.parameter_system)
+                rs.init_properties(bpy.context.scene.mcell.parameter_system)
                 rs.build_properties_from_data_model ( context, r )
 
     def check_properties_after_building ( self, context ):
@@ -712,7 +712,7 @@ class MCellMoleculeReleasePropertyGroup(bpy.types.PropertyGroup):
 
     def draw_layout ( self, context, layout ):
         """ Draw the release "panel" within the layout """
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )
         else:
@@ -919,7 +919,7 @@ class MCELL_OT_release_pattern_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.release_patterns.add_release_pattern ( context )
+        bpy.context.scene.mcell.release_patterns.add_release_pattern ( context )
         return {'FINISHED'}
 
 
@@ -930,7 +930,7 @@ class MCELL_OT_release_pattern_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        context.scene.mcell.release_patterns.remove_active_rel_pattern ( context )
+        bpy.context.scene.mcell.release_patterns.remove_active_rel_pattern ( context )
         self.report({'INFO'}, "Deleted Release Pattern")
         return {'FINISHED'}
 
@@ -967,7 +967,7 @@ def update_release_pattern_rxn_name_list():
 def check_release_pattern_name(self, context):
     """Checks for duplicate or illegal release pattern name."""
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     rel_pattern_list = mcell.release_patterns.release_pattern_list
     rel_pattern = rel_pattern_list[
         mcell.release_patterns.active_release_pattern_index]
@@ -1029,7 +1029,7 @@ class MCellReleasePatternProperty(bpy.types.PropertyGroup):
 
     def remove_properties ( self, context ):
         print ( "Removing all Release Pattern Properties... no collections to remove." )
-        ps = context.scene.mcell.parameter_system
+        ps = bpy.context.scene.mcell.parameter_system
         self.delay.clear_ref ( ps )
         self.release_interval.clear_ref ( ps )
         self.train_duration.clear_ref ( ps )
@@ -1125,7 +1125,7 @@ class MCellReleasePatternPropertyGroup(bpy.types.PropertyGroup):
 
 
     def add_release_pattern ( self, context ):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         pat_id = self.allocate_available_id()  # Get the ID before allocating to allow it to reset
         self.release_pattern_list.add()
         self.active_release_pattern_index = len(self.release_pattern_list)-1
@@ -1200,7 +1200,7 @@ class MCellReleasePatternPropertyGroup(bpy.types.PropertyGroup):
                 self.release_pattern_list.add()
                 self.active_release_pattern_index = len(self.release_pattern_list)-1
                 rp = self.release_pattern_list[self.active_release_pattern_index]
-                rp.init_properties(context.scene.mcell.parameter_system)
+                rp.init_properties(bpy.context.scene.mcell.parameter_system)
                 rp.build_properties_from_data_model ( context, r )
 
     def check_properties_after_building ( self, context ):
@@ -1221,7 +1221,7 @@ class MCellReleasePatternPropertyGroup(bpy.types.PropertyGroup):
 
     def draw_layout ( self, context, layout ):
         """ Draw the release "panel" within the layout """
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )

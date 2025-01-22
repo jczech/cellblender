@@ -716,7 +716,7 @@ def upgrade_properties_from_data_model ( context ):
     #           object_surface_regions.py
     #
     #del bpy.types.Object.mcell
-    #for obj in context.scene.collection.children[0].objects:
+    #for obj in bpy.context.scene.collection.children[0].objects:
     #  if obj.get ( 'mcell' ):
     #    del obj['mcell']
     #    if obj.type == 'MESH':
@@ -778,7 +778,7 @@ def upgrade_RC3_properties_from_data_model ( context ):
       #           object_surface_regions.py
       #
       #del bpy.types.Object.mcell
-      #for obj in context.scene.collection.children[0].objects:
+      #for obj in bpy.context.scene.collection.children[0].objects:
       #  if obj.get ( 'mcell' ):
       #    del obj['mcell']
       #    if obj.type == 'MESH':
@@ -852,9 +852,9 @@ try:
         if not context:
             context = bpy.context
 
-        if 'mcell' in context.scene:
-            dm = context.scene.mcell.build_data_model_from_properties ( context )
-            context.scene.mcell['data_model'] = pickle_data_model(dm)
+        if 'mcell' in bpy.context.scene:
+            dm = bpy.context.scene.mcell.build_data_model_from_properties ( context )
+            bpy.context.scene.mcell['data_model'] = pickle_data_model(dm)
 
         return
         """
@@ -889,7 +889,7 @@ try:
 
         api_version_in_blend_file = -1  # TODO May not be used
 
-        #if 'mcell' in context.scene:
+        #if 'mcell' in bpy.context.scene:
         if hasattr ( bpy.context.scene, 'mcell' ):
             mcell = bpy.context.scene.mcell
 
@@ -913,8 +913,8 @@ try:
         """
         print ( "Delete MCell RNA properties" )
         del bpy.types.Scene.mcell
-        if context.scene.get ( 'mcell' ):
-          del context.scene['mcell']
+        if bpy.context.scene.get ( 'mcell' ):
+          del bpy.context.scene['mcell']
         print ( "Reinstate MCell RNA properties" )
         bpy.types.Scene.mcell = bpy.props.PointerProperty(type=cellblender.cellblender_main.MCellPropertyGroup)
         print ( "Reinstated MCell RNA properties" )
@@ -926,7 +926,7 @@ try:
         #print ( "Unregistered" )
 
         #bpy.utils.register_module('cellblender')
-        #mcell = context.scene.mcell
+        #mcell = bpy.context.scene.mcell
         #print ( "Reregistered" )
 
 

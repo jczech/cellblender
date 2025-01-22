@@ -60,7 +60,7 @@ class MCellProjectPropertyGroup(bpy.types.PropertyGroup):
     status: StringProperty(name="Status")
 
     def draw_layout (self, context, layout):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
 
         if not mcell.initialized:
             mcell.draw_uninitialized ( layout )
@@ -103,7 +103,7 @@ class MCellProjectPropertyGroup(bpy.types.PropertyGroup):
                     icon='CHECKMARK')
 
             row = layout.row()
-            layout.prop(context.scene, "name", text="Project Base Name")
+            layout.prop(bpy.context.scene, "name", text="Project Base Name")
             row = layout.row()
             row.label(
                 text="Prefix for generated model files, names 'Scene' and 'Untitled' are defaults and are not used.")
@@ -140,7 +140,7 @@ class MCELL_OT_export_project(bpy.types.Operator):
     @classmethod
     def poll(self,context):
 
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         if mcell.cellblender_preferences.lockout_export:
             # print ( "Exporting is currently locked out. See the Preferences/ExtraOptions panel." )
             # The "self" here doesn't contain or permit the report function.
@@ -205,19 +205,19 @@ class MCELL_OT_export_project(bpy.types.Operator):
     def execute(self, context):
         print("Start of MCELL_OT_export_project.execute()")
 
-        if context.scene.mcell.cellblender_preferences.lockout_export:
+        if bpy.context.scene.mcell.cellblender_preferences.lockout_export:
             print ( "Exporting is currently locked out. See the Preferences/ExtraOptions panel." )
             self.report({'INFO'}, "Exporting is Locked Out")
         else:
-            print(" Scene name =", context.scene.name)
+            print(" Scene name =", bpy.context.scene.name)
 
             # Filter or replace problem characters (like space, ...)
-            scene_name = context.scene.name.replace(" ", "_")
+            scene_name = bpy.context.scene.name.replace(" ", "_")
 
             # Change the actual scene name to the legal MCell Name
-            context.scene.name = scene_name
+            bpy.context.scene.name = scene_name
 
-            mcell = context.scene.mcell
+            mcell = bpy.context.scene.mcell
 
             # Force the project directory to be where the .blend file lives
             cellblender_objects.model_objects_update(context)
@@ -262,7 +262,7 @@ class MCELL_OT_export_project(bpy.types.Operator):
                 print ( "Exporting dynamic objects from MCELL_OT_export_project.execute()" )
 
                 # Save the current frame to restore later
-                fc = context.scene.frame_current
+                fc = bpy.context.scene.frame_current
 
                 # Generate the dynamic geometry
 
@@ -273,14 +273,14 @@ class MCELL_OT_export_project(bpy.types.Operator):
                     os.makedirs(path_to_dg_files)
 
 
-                iterations = context.scene.mcell.initialization.iterations.get_value()
-                time_step = context.scene.mcell.initialization.time_step.get_value()
+                iterations = bpy.context.scene.mcell.initialization.iterations.get_value()
+                time_step = bpy.context.scene.mcell.initialization.time_step.get_value()
                 print ( "iterations = " + str(iterations) + ", time_step = " + str(time_step) )
 
                 # Build the script list first as a dictionary by object names so they aren't read at every iteration
                 # It might also be efficient if these could be precompiled at this time (rather than in the loop).
                 script_dict = {}
-                for obj in context.scene.mcell.model_objects.object_list:
+                for obj in bpy.context.scene.mcell.model_objects.object_list:
                     if obj.dynamic:
                         if len(obj.script_name) > 0:
                             # script_text = bpy.data.texts[obj.script_name].as_string()
@@ -288,8 +288,8 @@ class MCELL_OT_export_project(bpy.types.Operator):
                             script_dict[obj.script_name] = compiled_text
 
                 # Save state of mol_viz_enable and disable mol viz during frame change for dynamic geometry
-                mol_viz_state = context.scene.mcell.mol_viz.mol_viz_enable
-                context.scene.mcell.mol_viz.mol_viz_enable = False
+                mol_viz_state = bpy.context.scene.mcell.mol_viz.mol_viz_enable
+                bpy.context.scene.mcell.mol_viz.mol_viz_enable = False
 
                 for frame_number in range(iterations+1):
                     ####################################################################
@@ -318,10 +318,10 @@ class MCELL_OT_export_project(bpy.types.Operator):
 
 
                     # Set the frame number for Blender
-                    context.scene.frame_set(frame_number)
+                    bpy.context.scene.frame_set(frame_number)
 
                     # Write out the individual MDL files for each dynamic object at this frame
-                    for obj in context.scene.mcell.model_objects.object_list:
+                    for obj in bpy.context.scene.mcell.model_objects.object_list:
                         if obj.dynamic:
                             # print ( "  Iteration " + str(frame_number) + ", Saving geometry for object " + obj.name + " using script \"" + obj.script_name + "\"" )
                             points = []
@@ -343,8 +343,8 @@ class MCELL_OT_export_project(bpy.types.Operator):
 
                                 print ( " cellblender_project.py: Build MDL mesh from Blender object for frame " + str(frame_number) )
 
-                                geom_obj = context.scene.collection.children[0].objects[obj.name]
-                                mesh = geom_obj.to_mesh(preserve_all_data_layers=True, depsgraph=context.evaluated_depsgraph_get())
+                                geom_obj = bpy.context.scene.collection.children[0].objects[obj.name]
+                                mesh = geom_obj.to_mesh(preserve_all_data_layers=True, depsgraph=bpy.context.evaluated_depsgraph_get())
                                 mesh.transform(mathutils.Matrix() @ geom_obj.matrix_world)
                                 points = [v.co for v in mesh.vertices]
                                 faces = [f.vertices for f in mesh.polygons]
@@ -363,14 +363,14 @@ class MCELL_OT_export_project(bpy.types.Operator):
                     frame_file = open(full_frame_file_name, "w", encoding="utf8", newline="\n")
 
                     # Write the INCLUDE statements
-                    for obj in context.scene.mcell.model_objects.object_list:
+                    for obj in bpy.context.scene.mcell.model_objects.object_list:
                         if obj.dynamic:
                             file_name = "%s_frame_%d.mdl"%(obj.name,frame_number)
                             frame_file.write ( "INCLUDE_FILE = \"%s\"\n" % (file_name) )
 
                     # Write the INSTANTIATE statement
                     frame_file.write ( "INSTANTIATE Scene OBJECT {\n" )
-                    for obj in context.scene.mcell.model_objects.object_list:
+                    for obj in bpy.context.scene.mcell.model_objects.object_list:
                         if obj.dynamic:
                             frame_file.write ( "  %s OBJECT %s {}\n" % (obj.name, obj.name) )
                     frame_file.write ( "}\n" )
@@ -381,10 +381,10 @@ class MCELL_OT_export_project(bpy.types.Operator):
                 geom_list_file.close()
 
                 # Restore setting for mol viz
-                context.scene.mcell.mol_viz.mol_viz_enable = mol_viz_state
+                bpy.context.scene.mcell.mol_viz.mol_viz_enable = mol_viz_state
 
                 # Restore the current frame
-                context.scene.frame_set(fc)
+                bpy.context.scene.frame_set(fc)
 
                 # Update the main MDL file Scene.main.mdl to insert the DYNAMIC_GEOMETRY directive
                 try:
@@ -420,7 +420,7 @@ class MCELL_OT_export_project(bpy.types.Operator):
                     lines = new_lines
 
                     # Remove the "  obj OBJECT obj {}" lines:
-                    for obj in context.scene.mcell.model_objects.object_list:
+                    for obj in bpy.context.scene.mcell.model_objects.object_list:
                         new_lines = []
                         for line in lines:
                             if not "%s OBJECT %s {}" % (obj.name, obj.name) in line:

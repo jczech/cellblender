@@ -63,7 +63,7 @@ class MCELL_OT_rxn_output_add(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell.rxn_output.rxn_output_list.add()
         mcell.rxn_output.active_rxn_output_index = len(
             mcell.rxn_output.rxn_output_list)-1
@@ -79,7 +79,7 @@ class MCELL_OT_rxn_output_remove(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mcell.rxn_output.rxn_output_list.remove(
             mcell.rxn_output.active_rxn_output_index)
         mcell.rxn_output.active_rxn_output_index -= 1
@@ -99,7 +99,7 @@ class MCELL_OT_rxn_output_disable_all(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         for rxn_output in mcell.rxn_output.rxn_output_list:
             rxn_output.plotting_enabled = False
         return {'FINISHED'}
@@ -112,7 +112,7 @@ class MCELL_OT_rxn_output_enable_all(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         for rxn_output in mcell.rxn_output.rxn_output_list:
             rxn_output.plotting_enabled = True
         return {'FINISHED'}
@@ -125,7 +125,7 @@ class MCELL_OT_add_all_world(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         mol_list = mcell.molecules.molecule_list
         for mol in mol_list:
             new_rxn_out = mcell.rxn_output.rxn_output_list.add()
@@ -168,7 +168,7 @@ class MCELL_OT_plot_rxn_output_with_selected(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         plot_sep = mcell.rxn_output.plot_layout
         plot_legend = mcell.rxn_output.plot_legend
         ###use_sweep = mcell.rxn_output.use_sweep
@@ -524,7 +524,7 @@ class MCELL_OT_plot_rxn_output_with_selected(bpy.types.Operator):
 def check_rxn_output(self, context):
     """ Format reaction data output. """
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     rxn_output_list = mcell.rxn_output.rxn_output_list
     rxn_output = rxn_output_list[
         mcell.rxn_output.active_rxn_output_index]
@@ -616,7 +616,7 @@ def check_rxn_output(self, context):
 def update_name_and_check_rxn_output(self, context):
     # Set the name to show the MDL
 
-    mcell = context.scene.mcell
+    mcell = bpy.context.scene.mcell
     rxn_output_list = mcell.rxn_output.rxn_output_list
     rxn_output = rxn_output_list[mcell.rxn_output.active_rxn_output_index]
     if rxn_output.rxn_or_mol == 'MDLString':
@@ -970,7 +970,7 @@ class MCellReactionOutputPropertyGroup(bpy.types.PropertyGroup):
         # Check that the data model version matches the version for this property group
         if dm['data_model_version'] != "DM_2016_06_30_1600":
             data_model.handle_incompatible_data_model ( "Error: Unable to upgrade MCellReactionOutputPropertyGroup data model to current version." )
-        self.init_properties(context.scene.mcell.parameter_system)
+        self.init_properties(bpy.context.scene.mcell.parameter_system)
         self.plot_layout = dm["plot_layout"]
         self.plot_legend = dm["plot_legend"]
         self.rxn_step.set_expr ( dm["rxn_step"] )
@@ -985,7 +985,7 @@ class MCellReactionOutputPropertyGroup(bpy.types.PropertyGroup):
                 self.rxn_output_list.add()
                 self.active_rxn_output_index = len(self.rxn_output_list)-1
                 ro = self.rxn_output_list[self.active_rxn_output_index]
-                # ro.init_properties(context.scene.mcell.parameter_system)
+                # ro.init_properties(bpy.context.scene.mcell.parameter_system)
                 ro.build_properties_from_data_model ( context, r )
 
 
@@ -1007,7 +1007,7 @@ class MCellReactionOutputPropertyGroup(bpy.types.PropertyGroup):
 
     def draw_layout ( self, context, layout ):
         """ Draw the reaction output "panel" within the layout """
-        mcell = context.scene.mcell
+        mcell = bpy.context.scene.mcell
         ps = mcell.parameter_system
         PBC = mcell.pbc
 
