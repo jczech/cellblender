@@ -859,6 +859,93 @@ def set_mol_orientation(bm, mol_pos, mol_orient):
 
 
 
+def create_node(node_tree, type_name, node_x_location, node_location_step_x=0, node_y_location=0):
+    """Creates a node of a given type, and sets/updates the location of the node on the X axis.
+    Returning the node object and the next location on the X axis for the next node.
+    """
+    node_obj = node_tree.nodes.new(type=type_name)
+    node_obj.location.x = node_x_location
+    node_obj.location.y = node_y_location
+    node_x_location += node_location_step_x
+
+    return node_obj, node_x_location
+
+
+
+def update_geo_node_tree(node_tree):
+    """
+    Adding various geo nodes into the
+    geo node tree
+
+    Geo Node type names found here
+    https://docs.blender.org/api/current/bpy.types.GeometryNode.html
+    """
+
+    node_tree.nodes.new(type='NodeGroupInput')
+    node_tree.nodes.new(type='NodeGroupOutput')
+    node_tree.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
+    node_tree.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
+
+    node_x_location = -400
+    node_tree.nodes['Group Input'].location.x = node_x_location
+
+    out_node = node_tree.nodes["Group Output"]
+
+    node_location_step_x = 170
+
+    object_info_node, node_x_location = create_node(node_tree, "GeometryNodeObjectInfo",
+                                                  node_x_location, node_location_step_x=node_location_step_x, node_y_location=-100)
+
+    mol_name = node_tree.name.split('_orient_node')[0]
+    mol_shape_name = mol_name + '_shape'
+    mol_shape_obj = bpy.data.objects[mol_shape_name]
+
+    object_info_node.inputs[0].default_value = mol_shape_obj
+
+    mol_orient_attr_node, node_x_location = create_node(node_tree, "GeometryNodeInputNamedAttribute",
+                                                    node_x_location, node_location_step_x=node_location_step_x, node_y_location=-250)
+    mol_orient_attr_node.data_type = 'FLOAT_VECTOR'
+    mol_orient_attr_node.inputs[0].default_value = 'mol_orient'
+
+    align_rotation_vector_node, node_x_location = create_node(node_tree, "FunctionNodeAlignRotationToVector",
+                                                              node_x_location, node_location_step_x=node_location_step_x, node_y_location=-200)
+    
+    
+    instance_on_points_node, node_x_location = create_node(node_tree, "GeometryNodeInstanceOnPoints",
+                                                           node_x_location, node_location_step_x=node_location_step_x, node_y_location=-70)
+
+                                                      
+    out_node.location.x = node_x_location
+
+    node_tree.links.new(node_tree.nodes['Group Input'].outputs['Geometry'], instance_on_points_node.inputs['Points'])
+    node_tree.links.new(object_info_node.outputs['Geometry'], instance_on_points_node.inputs['Instance'])
+    node_tree.links.new(mol_orient_attr_node.outputs['Attribute'], align_rotation_vector_node.inputs['Vector'])
+    node_tree.links.new(align_rotation_vector_node.outputs['Rotation'], instance_on_points_node.inputs['Rotation'])
+    node_tree.links.new(instance_on_points_node.outputs['Instances'], out_node.inputs['Geometry'])
+
+
+
+'''
+def import_data():
+    
+    # After we have created our new object:
+
+    obj.modifiers.new('GeometryNodes', type='NODES')
+    node_tree = bpy.data.node_groups.get('mol_sm_orient_node')
+    if node_tree is None:
+        bpy.data.node_groups.new('mol_sm_orient_node', type='GeometryNodeTree')
+        node_tree = bpy.data.node_groups['mol_sm_orient_node']
+        node_tree.use_fake_user = True
+        node_tree.is_modifier = True
+        update_geo_node_tree(node_tree)
+    obj.modifiers['GeometryNodes'].node_group = node_tree
+    
+    return node_tree
+'''
+
+
+
+
 def mol_viz_file_read(mcell, filepath):
     """ Read and Draw the molecule viz data for the current frame. """
 
@@ -1139,10 +1226,15 @@ def mol_viz_file_read(mcell, filepath):
                 '''
 
                 # Add molecule positions as vertices to the mesh
-                mol_pos_mesh.vertices.add(len(mol_pos)//3)  # replaces old vertices with new vertices
+                mol_pos_mesh.vertices.add(len(mol_pos)//3)  # realloc and replace old vertices with new vertices
                 mol_pos_mesh.vertices.foreach_set("co", mol_pos)
 
                 use_orient = mol.glyph_orientation
+
+                # Randomly orient volume molecules
+                if mol_type == 0:
+                  mol_orient.extend([random.uniform(
+                      -1.0, 1.0) for i in range(len(mol_pos))])
 
                 '''
                 # without geometry nodes, better way to set orientations for vol and surf molecules differently
@@ -1203,10 +1295,23 @@ def mol_viz_file_read(mcell, filepath):
                 # Create object to contain the mol_pos_mesh data and associate object with geometry node
                 mol_obj = objs.new(mol_name, mol_pos_mesh)
                 scn_objs.link(mol_obj)
-                bpy.context.view_layer.objects.active = mol_obj
-                bpy.ops.object.modifier_add(type='NODES')
-                mol_obj.modifiers['GeometryNodes'].node_group = bpy.data.node_groups['mol_orient_node']
+                #bpy.context.view_layer.objects.active = mol_obj
+                #bpy.ops.object.modifier_add(type='NODES')
+                #mol_obj.modifiers['GeometryNodes'].node_group = bpy.data.node_groups['mol_orient_node']
                 mol_obj.select_set(False)
+
+                mol_obj.modifiers.new('GeometryNodes', type='NODES')
+                mol_orient_node_tree_name = "%s_orient_node" % (mol_name)
+                node_tree = bpy.data.node_groups.get(mol_orient_node_tree_name)
+                if node_tree is None:
+                    bpy.data.node_groups.new(mol_orient_node_tree_name, type='GeometryNodeTree')
+                    node_tree = bpy.data.node_groups[mol_orient_node_tree_name]
+                    node_tree.use_fake_user = True
+                    node_tree.is_modifier = True
+                    update_geo_node_tree(node_tree)
+                mol_obj.modifiers['GeometryNodes'].node_group = node_tree
+
+                mol_shape_obj.parent = mol_obj
 
                 '''
                 mol_shape_obj.parent = mol_obj

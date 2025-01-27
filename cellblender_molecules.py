@@ -1146,9 +1146,16 @@ class MCellMoleculeProperty(bpy.types.PropertyGroup):
             mol_obj = objs.new(mol_name, mol_pos_mesh)
             scn_objs.link(mol_obj)
             mol_shape_obj.parent = mol_obj
-            mol_obj.instance_type = 'VERTS'
-            mol_obj.use_instance_vertices_rotation = True
+            #mol_obj.instance_type = 'VERTS'
+            #mol_obj.use_instance_vertices_rotation = True
             mol_obj.parent = mols_obj
+
+        # Update reference to mol_shape_obj in geometry node for this molecule if it exists
+        mol_orient_node_tree_name = mol_name + '_orient_node'
+        node_tree = bpy.data.node_groups.get(mol_orient_node_tree_name)
+        if node_tree is not None:
+          object_info_node = node_tree.nodes['Object Info']
+          object_info_node.inputs['Object'].default_value = mol_shape_obj
 
         # Be sure the new object is at the origin, and lock it there.
         mol_obj.location.x = 0
@@ -1169,7 +1176,7 @@ class MCellMoleculeProperty(bpy.types.PropertyGroup):
         mol_obj.hide_select = False
 
         # Add the shape to the scene as a glyph for the object
-        mol_obj.instance_type = 'VERTS'
+        #mol_obj.instance_type = 'VERTS'
         mol_shape_obj.parent = mol_obj
 
         # print ( "Done creating mol data for " + self.name )
