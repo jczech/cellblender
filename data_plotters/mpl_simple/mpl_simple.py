@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-import numpy
+from numpy import fromfile
 import matplotlib as mpl
 mpl.use("TkAgg")
 import matplotlib.pyplot as plt
@@ -41,7 +41,7 @@ if (__name__ == '__main__'):
             print('Plotting %s' % (filename))
             if len(label) == 0:
               label = filename
-            data = numpy.fromfile(sys.argv[i],sep=' ')
+            data = fromfile(sys.argv[i],sep=' ')
             x = data[0::2]
             y = data[1::2]
             ax.plot(x, y, label=label)

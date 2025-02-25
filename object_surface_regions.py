@@ -33,11 +33,8 @@ import mathutils
 # python imports
 import re
 
-import cellblender
-
 
 # from . import ParameterSpace
-
 
 
 # Object Surface Region Operators:

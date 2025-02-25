@@ -7,7 +7,7 @@ Taraz Buck
 Tom Bartol
 '''
 from collections import defaultdict
-from cellblender.cellblender_utils import preserve_selection_use_operator
+from ..cellblender_utils import preserve_selection_use_operator
  
 import sys
 import bpy

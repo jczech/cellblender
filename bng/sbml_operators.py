@@ -2,7 +2,7 @@ import bpy
 import os
 import platform
 from . import sbml2blender
-from cellblender.cellblender_utils import get_python_path
+from ..cellblender_utils import get_python_path
 
 
 filePath = ''

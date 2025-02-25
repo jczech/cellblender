@@ -11,7 +11,7 @@ import argparse
 #import data_model_to_mdl
 from . import data_model_to_mdl_3
 
-import cellblender.sim_engines as sim_engines
+from ... import sim_engine_manager
 
 
 
@@ -184,7 +184,7 @@ def run_mcell_sweep ( sys_argv, data_model=None ):
 
     # Build a sweep list and add a "current_index" of 0 to support the sweeping
     print ( "Building sweep list" )
-    sweep_list = sim_engines.build_sweep_list( dm['mcell']['parameter_system'] )
+    sweep_list = sim_engine_manager.build_sweep_list( dm['mcell']['parameter_system'] )
     print ( "Sweep list = " + str(sweep_list) )
     for sw_item in sweep_list:
       sw_item['current_index'] = 0
@@ -212,7 +212,7 @@ def run_mcell_sweep ( sys_argv, data_model=None ):
 
 
     # Count the number of sweep runs (could be done in build_sweep_list, but it's nice as a separate function) 
-    num_sweep_runs = sim_engines.count_sweep_runs ( sweep_list )
+    num_sweep_runs = sim_engine_manager.count_sweep_runs ( sweep_list )
     num_requested_runs = num_sweep_runs * (1 + parsed_args.last_seed - parsed_args.first_seed)
     print ( "Number of non-seed sweep runs = " + str(num_sweep_runs) )
     print ( "Total runs (sweep and seed) is " + str(num_requested_runs) )
@@ -247,9 +247,9 @@ def run_mcell_sweep ( sys_argv, data_model=None ):
         for seed in range(start_seed,end_seed+1):
             # Create the directories and write the MDL
             sweep_item_path = os.path.join(project_dir,sweep_path)
-            sim_engines.makedirs_exist_ok ( sweep_item_path, exist_ok=True )
-            sim_engines.makedirs_exist_ok ( os.path.join(sweep_item_path,'react_data'), exist_ok=True )
-            sim_engines.makedirs_exist_ok ( os.path.join(sweep_item_path,'viz_data'), exist_ok=True )
+            sim_engine_manager.makedirs_exist_ok ( sweep_item_path, exist_ok=True )
+            sim_engine_manager.makedirs_exist_ok ( os.path.join(sweep_item_path,'react_data'), exist_ok=True )
+            sim_engine_manager.makedirs_exist_ok ( os.path.join(sweep_item_path,'viz_data'), exist_ok=True )
             data_model_to_mdl_3.write_mdl ( dm, os.path.join(sweep_item_path, '%s.main.mdl' % (base_name) ) )
             run_cmd_list.append ( [mcell_binary, sweep_item_path, base_name+".main.mdl", error_file_option, log_file_option, seed] )
         # Increment the current_index counters from rightmost side (deepest directory)

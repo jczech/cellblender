@@ -24,7 +24,6 @@ This file contains the classes for CellBlender's Scripting.
 import glob
 import os
 
-import cellblender
 
 # blender imports
 import bpy
@@ -40,7 +39,6 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, \
 import re
 
 # CellBlender imports
-import cellblender
 from . import data_model
 from . import parameter_system
 from . import cellblender_utils

@@ -21,7 +21,6 @@
 This file contains the classes for CellBlender's Partitioning System.
 """
 
-import cellblender
 
 # blender imports
 import bpy
@@ -35,8 +34,6 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, \
 
 # python imports
 import re
-# CellBlender imports
-import cellblender
 
 #Property class for the PBC
 class MCellPBCPropertyGroup(bpy.types.PropertyGroup):

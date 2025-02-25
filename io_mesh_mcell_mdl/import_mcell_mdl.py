@@ -18,8 +18,8 @@
 
 # <pep8 compliant>
 
-from . import mdlmesh_parser
 from . import import_shared
+from . import mdlmesh_parser
 
 
 def load(operator, context, filepath="", add_to_model_objects=True):

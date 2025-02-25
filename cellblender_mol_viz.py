@@ -22,7 +22,6 @@ This file contains the classes for CellBlender's Molecule Visualization.
 
 """
 
-import cellblender
 
 # blender imports
 import bpy
@@ -46,14 +45,12 @@ import re
 import json
 
 # CellBlender imports
-import cellblender
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
 
-import cellblender.parameter_system as parameter_system 
-import cellblender.cellblender_release as cellblender_release 
-import cellblender.cellblender_utils as cellblender_utils 
-    
-from cellblender.cellblender_utils import timeline_view_all
-from cellblender.cellblender_utils import mcell_files_path
+from . import parameter_system 
+from . import cellblender_release 
+from . import cellblender_utils 
 
 
 # Mol Viz Operators:
@@ -185,7 +182,7 @@ class MCELL_OT_read_viz_data(bpy.types.Operator):
 
           #  mol_file_dir comes from directory associated with saved .blend file
           mol_viz_top_level_dir = None
-          files_path = mcell_files_path()  # This will be the full path from "/"
+          files_path = cellblender_utils.mcell_files_path()  # This will be the full path from "/"
 
           # Check to see if the data is in an output_data directory or not
 
@@ -319,7 +316,7 @@ def set_viz_boundaries( context ):
 #        bpy.context.scene.frame_end = len(mcell.mol_viz.mol_file_list)-1
         bpy.context.scene.frame_end = len(global_mol_file_list)-1
 
-        timeline_view_all ( context )
+        cellblender_utils.timeline_view_all ( context )
         """
         if bpy.context.screen != None:
             for area in bpy.context.screen.areas:
@@ -462,7 +459,7 @@ def get_mol_file_dir():
         mcell.mol_viz.active_mol_viz_seed_index = 0
         active_mol_viz_seed = mcell.mol_viz.mol_viz_seed_list[0]
     filepath = os.path.join(
-        mcell_files_path(), "viz_data/%s" % active_mol_viz_seed.name)
+        cellblender_utils.mcell_files_path(), "viz_data/%s" % active_mol_viz_seed.name)
     filepath = os.path.relpath(filepath)
 
     return filepath
@@ -1752,7 +1749,7 @@ class MCellMolVizPropertyGroup(bpy.types.PropertyGroup):
 
         mcell = bpy.context.scene.mcell
 
-        files_path = mcell_files_path()  # This will include the "mcell" on the end
+        files_path = cellblender_utils.mcell_files_path()  # This will include the "mcell" on the end
 
         if os.path.exists(files_path):
 

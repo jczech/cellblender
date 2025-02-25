@@ -49,7 +49,8 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, \
 
 from bpy.app.handlers import persistent
 
-import cellblender
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
 
 from . import cellblender_examples
 from . import cellblender_preferences
@@ -83,8 +84,8 @@ import os
 
 from . import cellblender_utils
 #from cellblender.cellblender_utils import mcell_files_path
-from cellblender.cellblender_utils import mcell_files_path
-from cellblender.io_mesh_mcell_mdl import export_mcell_mdl
+from .cellblender_utils import mcell_files_path
+from .io_mesh_mcell_mdl import export_mcell_mdl
 
 @persistent
 def mcell_valid_update(context):
@@ -145,10 +146,6 @@ import mathutils
 ##  REFACTORING NOTE: Almost all of the following code is at the "application" level and will probably stay in cellblender_main.
 ##
 ####
-
-
-
-import cellblender
 
 
 
@@ -954,7 +951,7 @@ class MCellPropertyGroup(bpy.types.PropertyGroup):
 
     def init_properties ( self, context=None ):
         print ("MCellPropertyGroup.init_properties called")
-        self.cellblender_version = str(cellblender.bl_info['version'])
+        self.cellblender_version = str(cellblender.cellblender_info['version'])
         self.cellblender_addon_id = "0"
         self.cellblender_data_model_version = "0"
         self.parameter_system.init_properties()

@@ -22,7 +22,6 @@ This file contains the classes for CellBlender's Meshalyzer.
 
 """
 
-import cellblender
 
 # blender imports
 import bpy
@@ -39,7 +38,6 @@ import re
 import mathutils
 
 # CellBlender imports
-import cellblender
 from . import parameter_system
 from . import cellblender_release
 from . import cellblender_utils

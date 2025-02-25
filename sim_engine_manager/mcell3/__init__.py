@@ -5,18 +5,22 @@ import sys
 import pickle
 import shutil
 
-import cellblender
-from cellblender import cellblender_utils
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
 
-import cellblender.cellblender_simulation as cellblender_sim
+print(f'>>>>>>>> mcell_3: {__package__}  <<<<<<<<<<<<')
 
-from cellblender.cellblender_utils import mcell_files_path
+from ... import cellblender_utils
+
+from ... import cellblender_simulation
+
+from ...cellblender_utils import mcell_files_path
 
 
 from bpy.props import CollectionProperty, StringProperty, BoolProperty, EnumProperty
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 
-import cellblender.sim_engines as engine_manager
+from ... import sim_engine_manager
 
 from . import export_project_mcell_3
 
@@ -123,7 +127,7 @@ def draw_layout ( self, context, layout ):
     row = layout.row()
     row.prop(run_sim, "remove_append", expand=True)
 
-    if cellblender_sim.global_scripting_enabled_once:
+    if cellblender_simulation.global_scripting_enabled_once:
         helptext = "Allow Running of Python Code in Scripting Panel - \n" + \
                    " \n" + \
                    "The Scripting Interface can run Python code contained\n" + \
@@ -204,7 +208,7 @@ def prepare_runs_no_data_model ( project_dir ):
         log_file_option = mcell.run_simulation.log_file
         script_dir_path = os.path.dirname(os.path.realpath(__file__))
 
-        engine_manager.write_default_data_layout(mcell_files, start, end)
+        sim_engine_manager.write_default_data_layout(mcell_files, start, end)
 
         for sim_seed in range(start,end+1):
             new_command = [ mcell_binary, "-seed",  str(sim_seed), os.path.join(project_dir, "%s.main.mdl" % base_name) ]

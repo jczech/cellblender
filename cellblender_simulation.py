@@ -22,7 +22,6 @@ This file contains the classes for CellBlender's Simulations.
 
 """
 
-import cellblender
 
 # blender imports
 import bpy
@@ -50,21 +49,23 @@ import math
 
 
 # CellBlender imports
-import cellblender
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
+
 from . import parameter_system
 from . import cellblender_utils
 from . import data_model
 
-from cellblender.mdl import data_model_to_mdl
+from .mdl import data_model_to_mdl
 #from cellblender.mdl import run_data_model_mcell
 
-from cellblender.cellblender_utils import project_files_path, mcell_files_path
+from .cellblender_utils import project_files_path, mcell_files_path
 
 from multiprocessing import cpu_count
 
-import cellblender.sim_engines as engine_manager
-import cellblender.sim_runners as runner_manager
-import cellblender.mcell4 as mcell4
+from . import sim_engine_manager
+from . import sim_runner_manager
+from . import mcell4
 
 
 def get_pid(item):
@@ -337,7 +338,7 @@ def run_generic_runner (context, sim_module):
         error_file_option = mcell.run_simulation.error_file
         log_file_option = mcell.run_simulation.log_file
         script_dir_path = os.path.dirname(os.path.realpath(__file__))
-        engine_manager.write_default_data_layout(mcell_files, start, end)
+        sim_engine_manager.write_default_data_layout(mcell_files, start, end)
 
 
         processes_list = mcell.run_simulation.processes_list
@@ -346,7 +347,7 @@ def run_generic_runner (context, sim_module):
         simulation_process = processes_list[mcell.run_simulation.active_process_index]
 
         print("Starting MCell ... create " + project_files_path() + "/start_time.txt file:")
-        engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
+        sim_engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
         with open(os.path.join(project_files_path(),"start_time.txt"), "w") as start_time_file:
             start_time_file.write("Started simulation at: " + (str(time.ctime())) + "\n")
 
@@ -590,7 +591,7 @@ class MCELL_OT_run_simulation_control_sweep (bpy.types.Operator):
                 simulation_process = processes_list[run_sim.active_process_index]
 
                 print("Starting MCell ... create " + project_files_path() + "/start_time.txt file:")
-                engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
+                sim_engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
                 with open(os.path.join(project_files_path(),"start_time.txt"), "w") as start_time_file:
                     start_time_file.write("Started simulation at: " + (str(time.ctime())) + "\n")
 
@@ -844,7 +845,7 @@ class MCELL_OT_run_simulation_sweep_queue(bpy.types.Operator):
                     # When just running, the geometry data isn't needed so build a data model without it
                     dm = mcell.build_data_model_from_properties ( context, geometry=False, scripts=False )
 
-                sweep_list = engine_manager.build_sweep_list( dm['parameter_system'] )
+                sweep_list = sim_engine_manager.build_sweep_list( dm['parameter_system'] )
                 print ( "Sweep list = " + str(sweep_list) )
                 # Add a "current_index" of 0 to support the sweeping
                 for sw_item in sweep_list:
@@ -853,10 +854,10 @@ class MCELL_OT_run_simulation_sweep_queue(bpy.types.Operator):
 
                 if run_sim.export_requested:
                     # The following line will create the "data_layout.json" file describing the directory structure
-                    engine_manager.write_sweep_list_to_layout_file ( sweep_list, start_seed, end_seed, os.path.join ( project_dir, "data_layout.json" ) )
+                    sim_engine_manager.write_sweep_list_to_layout_file ( sweep_list, start_seed, end_seed, os.path.join ( project_dir, "data_layout.json" ) )
 
                 # Count the number of sweep runs
-                num_sweep_runs = engine_manager.count_sweep_runs ( sweep_list )
+                num_sweep_runs = sim_engine_manager.count_sweep_runs ( sweep_list )
                 num_requested_runs = num_sweep_runs * (1 + end_seed - start_seed)
                 print ( "Number of non-seed sweep runs = " + str(num_sweep_runs) )
                 print ( "Total runs (sweep and seed) is " + str(num_requested_runs) )
@@ -883,9 +884,9 @@ class MCELL_OT_run_simulation_sweep_queue(bpy.types.Operator):
                         # Create the directories and write the MDL
                         sweep_item_path = os.path.join(project_dir,sweep_path)
                         if run_sim.export_requested:
-                            engine_manager.makedirs_exist_ok ( sweep_item_path, exist_ok=True )
-                            engine_manager.makedirs_exist_ok ( os.path.join(sweep_item_path,'react_data'), exist_ok=True )
-                            engine_manager.makedirs_exist_ok ( os.path.join(sweep_item_path,'viz_data'), exist_ok=True )
+                            sim_engine_manager.makedirs_exist_ok ( sweep_item_path, exist_ok=True )
+                            sim_engine_manager.makedirs_exist_ok ( os.path.join(sweep_item_path,'react_data'), exist_ok=True )
+                            sim_engine_manager.makedirs_exist_ok ( os.path.join(sweep_item_path,'viz_data'), exist_ok=True )
                             
                             if mcell4_mode:
                                 dm_file = str(os.path.join(sweep_item_path, '%s.data_model.json' % (base_name)))
@@ -928,7 +929,7 @@ class MCELL_OT_run_simulation_sweep_queue(bpy.types.Operator):
                       simulation_process = processes_list[run_sim.active_process_index]
 
                       print("Starting MCell ... create " + project_files_path() + "/start_time.txt file:")
-                      engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
+                      sim_engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
                       with open(os.path.join(project_files_path(),"start_time.txt"), "w") as start_time_file:
                           start_time_file.write("Started simulation at: " + (str(time.ctime())) + "\n")
 
@@ -1115,7 +1116,7 @@ class MCELL_OT_run_simulation_control_sweep_sge (bpy.types.Operator):
                 simulation_process = processes_list[run_sim.active_process_index]
 
                 print("Starting MCell ... create " + project_files_path() + "/start_time.txt file:")
-                engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
+                sim_engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
                 with open(os.path.join(project_files_path(),"start_time.txt"), "w") as start_time_file:
                     start_time_file.write("Started simulation at: " + (str(time.ctime())) + "\n")
 
@@ -1165,10 +1166,10 @@ class MCELL_OT_run_simulation_control_sweep_sge (bpy.types.Operator):
 
 
 
-                sweep_list = engine_manager.build_sweep_list( mcell_dm['parameter_system'] )
+                sweep_list = sim_engine_manager.build_sweep_list( mcell_dm['parameter_system'] )
                 print ( "Sweep list = " + str(sweep_list) )
                 # Count the number of sweep runs
-                num_sweep_runs = engine_manager.count_sweep_runs ( sweep_list )
+                num_sweep_runs = sim_engine_manager.count_sweep_runs ( sweep_list )
                 num_requested_runs = num_sweep_runs * (1 + end - start)
 
                 if num_requested_runs <= 1:
@@ -1243,7 +1244,7 @@ class MCELL_OT_run_simulation_control_normal(bpy.types.Operator):
                     script_dir_path, "run_simulations.py")
 
                 # The following line will create the "data_layout.json" file describing the directory structure
-                engine_manager.write_default_data_layout(project_dir, start, end)
+                sim_engine_manager.write_default_data_layout(project_dir, start, end)
 
                 processes_list = run_sim.processes_list
                 processes_list.add()
@@ -1253,7 +1254,7 @@ class MCELL_OT_run_simulation_control_normal(bpy.types.Operator):
                     run_sim.active_process_index]
 
                 print("Starting MCell ... create " + project_files_path() + "/start_time.txt file:")
-                engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
+                sim_engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
                 with open(os.path.join(project_files_path(), "start_time.txt"), "w") as start_time_file:
                     start_time_file.write("Started simulation at: " + (str(time.ctime())) + "\n")
 
@@ -1358,7 +1359,7 @@ class MCELL_OT_run_simulation_control_queue(bpy.types.Operator):
                 cellblender.simulation_queue.notify = True
 
                 # The following line will create the "data_layout.json" file describing the directory structure
-                engine_manager.write_default_data_layout(project_dir, start_seed, end_seed)
+                sim_engine_manager.write_default_data_layout(project_dir, start_seed, end_seed)
 
                 processes_list = run_sim.processes_list
                 for seed in range(start_seed,end_seed + 1):
@@ -1369,7 +1370,7 @@ class MCELL_OT_run_simulation_control_queue(bpy.types.Operator):
                       run_sim.active_process_index]
 
                   print("Starting MCell ... create " + project_files_path() + "/start_time.txt file:")
-                  engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
+                  sim_engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
                   with open(os.path.join(project_files_path(), "start_time.txt"), "w") as start_time_file:
                       start_time_file.write("Started simulation at: " + (str(time.ctime())) + "\n")
 
@@ -1530,7 +1531,7 @@ class MCELL_OT_run_simulation_dynamic(bpy.types.Operator):
             print ( "Update start time" )
 
             print("Starting MCell ... create " + project_files_path() + "/start_time.txt file:")
-            engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
+            sim_engine_manager.makedirs_exist_ok ( project_files_path(), exist_ok=True )
             with open(os.path.join(project_files_path(), "start_time.txt"), "w") as start_time_file:
                 start_time_file.write("Started simulation at: " + (str(time.ctime())) + "\n")
 
@@ -1558,7 +1559,7 @@ class MCELL_OT_run_simulation_dynamic(bpy.types.Operator):
             # The following line will create the "data_layout.json" file describing the directory structure
             # It would probably be better for the actual engine to do this, but put it here for now...
             print ( "Write the default data layout" )
-            engine_manager.write_default_data_layout(project_dir, start, end)
+            sim_engine_manager.write_default_data_layout(project_dir, start, end)
 
             script_dir_path = os.path.dirname(os.path.realpath(__file__))
             script_file_path = os.path.join(script_dir_path, "sim_engines")
@@ -2433,9 +2434,9 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
         print ( "Save Engines and Runners in Data Model" )
 
         sim_engine_list = []
-        if engine_manager.plug_modules != None:
+        if sim_engine_manager.plug_modules != None:
             print ( "Engine Plugs to save" )
-            for plug in engine_manager.plug_modules:
+            for plug in sim_engine_manager.plug_modules:
                 print ( "Saving Engine Plug " + str(plug.plug_code) )
                 plug_dm = {}
                 plug_dm['plug_code'] = plug.plug_code
@@ -2465,9 +2466,9 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
 
         dm['sim_engines'] = sim_engine_list
 
-        if runner_manager.plug_modules != None:
+        if sim_runner_manager.plug_modules != None:
             print ( "Runner Plugs to save" )
-            #runner_manager.plug_modules = runner_manager.get_modules()
+            #sim_runner_manager.plug_modules = sim_runner_manager.get_modules()
 
         return dm
 
@@ -2537,16 +2538,16 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
 
         # Force a reading of currently installed modules as needed
 
-        if engine_manager.plug_modules == None:
-            engine_manager.plug_modules = engine_manager.get_modules()
-        if runner_manager.plug_modules == None:
-            runner_manager.plug_modules = runner_manager.get_modules()
+        if sim_engine_manager.plug_modules == None:
+            sim_engine_manager.plug_modules = sim_engine_manager.get_modules()
+        if sim_runner_manager.plug_modules == None:
+            sim_runner_manager.plug_modules = sim_runner_manager.get_modules()
 
         # Only restore the engines and runners that are currently installed
 
-        if engine_manager.plug_modules != None:
+        if sim_engine_manager.plug_modules != None:
             print ( "Restoring Engine Plugs" )
-            for plug in engine_manager.plug_modules:
+            for plug in sim_engine_manager.plug_modules:
                 print ( "Looking for saved data for plug " + str(plug.plug_code) )
                 for plug_dm in dm['sim_engines']:
                     if plug_dm['plug_code'] == plug.plug_code:
@@ -2573,9 +2574,9 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
                         if "parameter_layout" in plug_dm:
                             plug.parameter_layout = plug_dm['parameter_layout']
 
-        if runner_manager.plug_modules != None:
+        if sim_runner_manager.plug_modules != None:
             print ( "Runner Plugs to save" )
-            #runner_manager.plug_modules = runner_manager.get_modules()
+            #sim_runner_manager.plug_modules = sim_runner_manager.get_modules()
 
     def draw_layout_run_once_dm_script ( self, context, layout ):
 
@@ -2987,10 +2988,10 @@ class MCellRunSimulationPropertyGroup(bpy.types.PropertyGroup):
 
 
 #import os
-#import cellblender.sim_engines as engine_manager
-#import cellblender.sim_runners as runner_manager
+#import cellblender.sim_engines as sim_engine_manager
+#import cellblender.sim_runners as sim_runner_manager
 
-# module_type_dict = { "sim_engines": engine_manager, "sim_runners": runner_manager }
+# module_type_dict = { "sim_engines": sim_engine_manager, "sim_runners": sim_runner_manager }
 
 active_engine_module = None
 active_runner_module = None
@@ -3002,17 +3003,17 @@ engine_module_dict = {}
 
 def load_plug_modules(context):
     # print ( "Call to load_plug_modules" )
-    if engine_manager.plug_modules == None:
-        engine_manager.plug_modules = engine_manager.get_modules()
-    if runner_manager.plug_modules == None:
-        runner_manager.plug_modules = runner_manager.get_modules()
+    if sim_engine_manager.plug_modules == None:
+        sim_engine_manager.plug_modules = sim_engine_manager.get_modules()
+    if sim_runner_manager.plug_modules == None:
+        sim_runner_manager.plug_modules = sim_runner_manager.get_modules()
 
 def get_engines_as_items(scene, context):
     load_plug_modules(context)
     # Start with any static modules that should always be in the list
     plugs_list = [("NONE", "Choose Engine", "")]
     # Add the dynamic modules
-    for plug in engine_manager.plug_modules:
+    for plug in sim_engine_manager.plug_modules:
         plug_active = True
         if "plug_active" in dir(plug):
             plug_active = plug.plug_active
@@ -3025,7 +3026,7 @@ def get_runners_as_items(scene, context):
     # Start with any static modules that should always be in the list
     plugs_list = [("NONE", "Choose Runner", "")]
     # Add the dynamic modules
-    for plug in runner_manager.plug_modules:
+    for plug in sim_runner_manager.plug_modules:
         plug_active = True
         if "plug_active" in dir(plug):
             plug_active = plug.plug_active
@@ -3041,8 +3042,8 @@ class PLUGGABLE_OT_Reload(bpy.types.Operator):
 
   def execute(self, context):
     print ( "pluggable.reload.execute()" )
-    engine_manager.plug_modules = None
-    runner_manager.plug_modules = None
+    sim_engine_manager.plug_modules = None
+    sim_runner_manager.plug_modules = None
     bpy.context.scene.mcell.sim_engines.plugs_changed_callback ( context )
     bpy.context.scene.mcell.sim_runners.plugs_changed_callback ( context )
     return{'FINISHED'}
@@ -3320,7 +3321,7 @@ class Pluggable(bpy.types.PropertyGroup):
                   active_engine_module.unregister_blender_classes()
           set_name = "engine"
           selected_module_code = self.engines_enum
-          for plug_module in engine_manager.plug_modules:
+          for plug_module in sim_engine_manager.plug_modules:
               if plug_module.plug_code == selected_module_code:
                   active_sub_module = plug_module
                   active_engine_module = plug_module
@@ -3335,7 +3336,7 @@ class Pluggable(bpy.types.PropertyGroup):
                   active_runner_module.unregister_blender_classes()
           set_name = "runner"
           selected_module_code = self.runners_enum
-          for plug_module in runner_manager.plug_modules:
+          for plug_module in sim_runner_manager.plug_modules:
               if plug_module.plug_code == selected_module_code:
                   active_sub_module = plug_module
                   active_runner_module = plug_module

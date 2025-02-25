@@ -22,7 +22,6 @@ This file contains the classes for CellBlender's Partitioning System.
 
 """
 
-import cellblender
 
 # blender imports
 import bpy
@@ -38,7 +37,6 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, \
 import re
 
 # CellBlender imports
-import cellblender
 from . import parameter_system
 from . import cellblender_utils
 from . import data_model

@@ -22,7 +22,6 @@ This file contains the classes for CellBlender's Model Objects.
 
 """
 
-import cellblender
 
 # blender imports
 import bpy
@@ -41,12 +40,11 @@ import os
 import json
 
 # CellBlender imports
-import cellblender
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
 from . import parameter_system
 from . import cellblender_release
 from . import cellblender_utils
-from cellblender.cellblender_utils import mcell_files_path
-
 
 
 # Model Object Helpers:
@@ -1457,7 +1455,7 @@ class MCellModelObjectsPropertyGroup(bpy.types.PropertyGroup):
 
         if mcell.model_objects.has_some_dynamic or force:
 
-            files_path = mcell_files_path()
+            files_path = cellblender_utils.mcell_files_path()
             path_to_dg_files = None
             # Assume the new "data_layout" system since dynamic geometry is relatively new
             # Read the data layout for this run (will include sweep subdirectories)

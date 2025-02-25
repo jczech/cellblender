@@ -27,7 +27,6 @@ import os
 import tempfile
 import json
 
-import cellblender
 
 # blender imports
 import bpy
@@ -43,13 +42,14 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, \
 import re
 
 # CellBlender imports
-import cellblender
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
 from . import data_model
 from . import parameter_system
 from . import cellblender_release
 from . import cellblender_utils
 from . import cellblender_pbc
-from cellblender.cellblender_utils import project_files_path, mcell_files_path, get_python_path
+from .cellblender_utils import project_files_path, mcell_files_path, get_python_path
 
 
 
@@ -793,10 +793,6 @@ class MCellReactionOutputProperty(bpy.types.PropertyGroup):
     def remove_properties ( self, context ):
         print ( "Removing all Reaction Output Properties... no collections to remove." )
 
-
-
-
-import cellblender
 
 
 def get_plotters_as_items(scene, context):

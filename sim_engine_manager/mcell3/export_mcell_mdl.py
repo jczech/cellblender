@@ -36,10 +36,9 @@ import shutil
 # blender imports
 import bpy
 
-# from cellblender import cellblender_operators  # Shouldn't need this anymore!!
 
-from cellblender import object_surface_regions
-from cellblender.cellblender_utils import mcell_files_path
+from ... import object_surface_regions
+from ...cellblender_utils import mcell_files_path
 
 
 def save(context, filepath=""):

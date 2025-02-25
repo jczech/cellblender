@@ -29,12 +29,11 @@ import math
 
 # CellBlender imports
 import bpy
-import cellblender
-from cellblender import parameter_system
-from cellblender import cellblender_utils
-from cellblender import cellblender_objects
+from ... import parameter_system
+from ... import cellblender_utils
+from ... import cellblender_objects
 
-from cellblender.cellblender_utils import mcell_files_path
+from ...cellblender_utils import mcell_files_path
 # from cellblender.io_mesh_mcell_mdl import export_mcell_mdl
 
 from . import export_mcell_mdl

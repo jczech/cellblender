@@ -22,10 +22,8 @@ import os
 import subprocess
 import sys
 
-import cellblender
-
-import cellblender.sim_engines as engine_manager
-import cellblender.sim_runners as runner_manager
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
 
 
 # blender imports
@@ -52,15 +50,15 @@ import math
 
 
 # CellBlender imports
-import cellblender.parameter_system as parameter_system
-import cellblender.cellblender_utils as cellblender_utils
-import cellblender.cellblender_simulation as cellblender_simulation
-import cellblender.data_model as data_model
+from ... import parameter_system
+from ... import cellblender_utils
+from ... import cellblender_simulation
+from ... import data_model
 
 #from cellblender.mdl import data_model_to_mdl
 #from cellblender.mdl import run_data_model_mcell
 
-from cellblender.cellblender_utils import mcell_files_path
+from ...cellblender_utils import mcell_files_path
 
 from multiprocessing import cpu_count
 

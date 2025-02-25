@@ -21,9 +21,12 @@
 import os
 import subprocess
 import sys
+import importlib
 
 
 # print ( "Top of data_plotters/__init__.py" )
+
+print(f'>>>>>>>>>>> data_plotters: {__package__} <<<<<<<<<<')
 
 
 def find_in_path(program_name):
@@ -70,7 +73,8 @@ def find_plotting_options():
                     import_name = plot_plugin
                     module_name_list = module_name_list + [f]
                     # print ( "Attempting to import %s" % (import_name) )
-                    plot_module = __import__ ( f )
+                    # plot_module = __import__ ( f )
+                    plot_module = importlib.import_module(f'.{f}', package=__package__)
                     # print ( "Checking requirements for %s" % ( plot_module.get_name() ) )
                     if plot_module.requirements_met():
                         # print ( "System requirements met for Plot Module \"%s\"" % ( plot_module.get_name() ) )

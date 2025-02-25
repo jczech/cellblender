@@ -90,7 +90,6 @@ from bpy.app.handlers import persistent
 import math
 import mathutils
 
-import cellblender
 from . import data_model
 
 bl_info = {

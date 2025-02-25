@@ -19,7 +19,9 @@
 
 import os
 import atexit
+import importlib
 
+'''
 bl_info = {
     "name": "CellBlender",
     "author": "Tom Bartol, Dipak Barua, Jacob Czech, Markus Dittrich, "
@@ -34,16 +36,88 @@ bl_info = {
     "tracker_url": "https://github.com/mcellteam/cellblender/issues",
     "category": "Cell Modeling",
 }
+'''
 
-from cellblender import cellblender_source_info
+#__package__ = __name__
+print(">>>>> ", __package__, " >>>>>>>>")
+
+#from cellblender import cellblender_source_info
+importlib.import_module(".cellblender_source_info", package=__package__)
 # cellblender_info was moved from __init__.py to cellblender_source_info.py
 # This assignment fixes any broken references ... for now:
 cellblender_info = cellblender_source_info.cellblender_info
+
+IMPORT_MODULE_NAMES = ( 'parameter_system',
+                 'cellblender_examples',
+                 'cellblender_preferences',
+                 'cellblender_scripting',
+                 'cellblender_project',
+                 'cellblender_simulation',
+                 'cellblender_initialization',
+                 'cellblender_pbc',
+                 'cellblender_objects',
+                 'cellblender_molecules',
+                 'cellblender_molmaker',
+                 'cellblender_reactions',
+                 'cellblender_release',
+                 'cellblender_surface_classes',
+                 'cellblender_surface_regions',
+                 'cellblender_reaction_output',
+                 'cellblender_partitions',
+                 'cellblender_mol_viz',
+                 'cellblender_meshalyzer',
+                 'cellblender_legacy',
+                 'object_surface_regions',
+                 'io_mesh_mcell_mdl',
+                 'mdl',
+                 'bng',
+                 'cellblender_utils',
+                 'run_simulations',
+                 'sim_runner_queue',
+                 'cellblender_main',
+                 'data_model',
+                 'data_plotters',
+               )
+_import_modules = []
+
+REGISTER_MODULE_NAMES = ( 'parameter_system',
+                 'cellblender_examples',
+                 'cellblender_preferences',
+                 'cellblender_scripting',
+                 'cellblender_project',
+                 'cellblender_simulation',
+                 'cellblender_initialization',
+                 'cellblender_pbc',
+                 'cellblender_objects',
+                 'cellblender_molecules',
+                 'cellblender_molmaker',
+                 'cellblender_reactions',
+                 'cellblender_release',
+                 'cellblender_surface_classes',
+                 'cellblender_surface_regions',
+                 'cellblender_reaction_output',
+                 'cellblender_partitions',
+                 'cellblender_mol_viz',
+                 'cellblender_meshalyzer',
+                 'cellblender_legacy',
+                 'object_surface_regions',
+                 'io_mesh_mcell_mdl',
+                 'mdl',
+                 'bng',
+                 'cellblender_main',
+                 'data_model',
+               )
+_register_modules = []
 
 
 simulation_popen_list = []
 
 current_data_model = None
+
+
+'''
+###########
+# Commented out here to test importlib method now in register()
 
 # To support reload properly, try to access a package var.
 # If it's there, reload everything
@@ -127,6 +201,8 @@ else:
         from . import data_plotters
     except:
         print("cellblender.data_plotters was not imported")
+###########
+'''
 
 
 ###############################################################
@@ -134,7 +210,6 @@ else:
 
 def get_data_model ( geometry=False ):
     import bpy
-    import cellblender
     context = bpy.context
     mdm = bpy.context.scene.mcell.build_data_model_from_properties ( context, geometry=geometry )
     dm = { 'mcell' : mdm }
@@ -142,7 +217,6 @@ def get_data_model ( geometry=False ):
 
 def replace_data_model ( dm, geometry=False, scripts=False ):
     import bpy
-    import cellblender
     context = bpy.context
     dm['mcell'] = bpy.context.scene.mcell.upgrade_data_model ( dm['mcell'] )
     bpy.context.scene.mcell.build_properties_from_data_model ( context, dm['mcell'], geometry=geometry, scripts=scripts )
@@ -168,6 +242,8 @@ def cd_to_location ( location ):
 # as intended. It will always use Blender's python or the system version of
 # python. Maybe this is good enough, but we might want to revisit this and
 # clean it up.
+from . import cellblender_utils
+from . import sim_runner_queue
 python_path = cellblender_utils.get_python_path()
 simulation_queue = sim_runner_queue.SimQueue(python_path)
 
@@ -262,8 +338,27 @@ def cb_unregister():
 # We use per module class registration/unregistration
 def register():
     print ( "Registering CellBlender with Blender version = " + str(bpy.app.version) )
-    #bpy.utils.register_module(__name__, verbose=False)
-    cb_register()
+    ##bpy.utils.register_module(__name__, verbose=False)
+
+    _import_modules.clear()
+    _register_modules.clear()
+
+    for module_name in IMPORT_MODULE_NAMES:
+      if module_name in locals():
+        module = importlib.reload(locals()[module_name])
+      else:
+        module = importlib.import_module(f'.{module_name}', package=__package__)
+      _import_modules.append(module)
+      if module_name in REGISTER_MODULE_NAMES:
+        _register_modules.append(module)
+    
+    python_path = cellblender_utils.get_python_path()
+    simulation_queue = sim_runner_queue.SimQueue(python_path)
+
+    for module in _register_modules:
+      module.register()
+
+    #cb_register()
 
 
     # Remove all menu items first to avoid duplicates
@@ -423,7 +518,10 @@ def unregister():
 
     atexit.unregister(simulation_queue.shutdown)
 
-    cb_unregister()
+    # cb_unregister()
+
+    for module in _register_modules[::-1]:
+      module.unregister()
 
     print("CellBlender unregistered")
 

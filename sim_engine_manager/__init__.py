@@ -21,8 +21,10 @@
 import os
 import subprocess
 import sys
+import importlib
 
-# import cellblender
+print(f'>>>>>>>> sim_engine_manager: {__package__} <<<<<<<<<<')
+
 
 plug_modules = None  # This is currently set by "cellblender_simulation.load_plug_modules"
 
@@ -61,7 +63,8 @@ def get_modules():
                     import_name = plugin
                     module_name_list = module_name_list + [f]
                     print ( "Attempting to import %s" % (import_name) )
-                    plugin_module = __import__ ( f )
+                    # plugin_module = __import__ ( f )
+                    plugin_module = importlib.import_module(f'.{f}', package=__package__)
                     # plugin_module = import f
                     # print ( "Checking requirements for %s" % ( plugin_module.get_name() ) )
                     #if plugin_module.requirements_met():

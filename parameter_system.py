@@ -10,9 +10,11 @@ num_pars_to_gen = 20
 num_back = 2
 make_loop = False
 
-import cellblender as cb
 
-dm = cb.get_data_model()
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
+
+dm = cellblender.get_data_model()
 
 def make_par_name ( n ):
     name = None
@@ -48,7 +50,7 @@ if make_loop:
 
 dm['mcell']['parameter_system'] = { 'model_parameters':pars }
 
-cb.replace_data_model ( dm )
+cellblender.replace_data_model ( dm )
 
 """
 

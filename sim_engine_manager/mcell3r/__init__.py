@@ -4,7 +4,9 @@ import sys
 import pickle
 import shutil
 
-import cellblender
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
+
 from . import data_model_to_mdl_3r
 
 print ( "Executing MCellR Simulation" )

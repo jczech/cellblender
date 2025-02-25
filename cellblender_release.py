@@ -22,7 +22,6 @@ This file contains the classes for CellBlender's Molecule Release/Placement.
 
 """
 
-import cellblender
 
 # blender imports
 import bpy
@@ -38,12 +37,15 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, \
 import re
 
 # CellBlender imports
-import cellblender
+#import cellblender
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
 from . import parameter_system
 from . import cellblender_utils
 from . import cellblender_preferences
 
-import cellblender.data_model as data_model
+#import cellblender.data_model as data_model
+from . import data_model
 
 
 

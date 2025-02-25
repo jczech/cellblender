@@ -2,8 +2,10 @@ import os
 import sys
 import shutil
 
-import cellblender
 import re
+
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
 
 
 print ( "Executing cBNGL Simulation" )

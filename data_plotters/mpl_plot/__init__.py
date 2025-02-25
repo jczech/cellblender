@@ -2,7 +2,9 @@ import os
 import subprocess
 import shutil
 
-from cellblender.cellblender_utils import get_python_path
+print(f'>>>>>>>>>>> mpl_plot: {__package__} <<<<<<<<<<')
+
+from ...cellblender_utils import get_python_path
 
 def get_name():
     return("MatPlotLib Plotter")

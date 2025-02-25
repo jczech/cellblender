@@ -21,6 +21,7 @@
 import os
 import subprocess
 import sys
+import importlib
 
 # import cellblender
 
@@ -61,7 +62,8 @@ def get_modules():
                     import_name = plugin
                     module_name_list = module_name_list + [f]
                     print ( "Attempting to import %s" % (import_name) )
-                    plugin_module = __import__ ( f )
+                    #plugin_module = __import__ ( f )
+                    plugin_module = importlib.import_module(f'.{f}', package=__package__)
                     # print ( "Checking requirements for %s" % ( plugin_module.get_name() ) )
                     #if plugin_module.requirements_met():
                     # print ( "System requirements met for Plot Module \"%s\"" % ( plugin_module.get_name() ) )

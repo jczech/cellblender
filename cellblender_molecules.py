@@ -71,9 +71,7 @@ import re
 import os
 import random
 
-import cellblender
 from . import data_model
-# from . import cellblender_parameters
 from . import parameter_system
 from . import cellblender_mol_viz
 from . import cellblender_utils

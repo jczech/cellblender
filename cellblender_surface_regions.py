@@ -22,7 +22,6 @@ This file contains the classes for CellBlender's Surface Regions.
 
 """
 
-import cellblender
 
 # blender imports
 import bpy
@@ -56,19 +55,11 @@ import sys, traceback
 
 
 # CellBlender imports
-import cellblender
 from . import parameter_system
 from . import cellblender_preferences
 from . import cellblender_release
 from . import cellblender_objects
-from . import cellblender_utils
-
-import cellblender.data_model as data_model
-# import cellblender_source_info
-from . import cellblender_utils
-#from cellblender.cellblender_utils import mcell_files_path
-from cellblender.cellblender_utils import mcell_files_path
-from cellblender.io_mesh_mcell_mdl import export_mcell_mdl
+from . import data_model
 
 
 

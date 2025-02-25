@@ -18,7 +18,8 @@ This is the current plan for a simple plotting syntax:
   yaxis=label : set label for y axis
 '''
 
-from numpy import math, fromfile
+from numpy import fromfile
+import math
 import sys
 import matplotlib as mpl
 # NOTE: Don't set the backend, let mpl choose automatically

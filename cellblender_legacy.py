@@ -48,9 +48,9 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, \
 
 from bpy.app.handlers import persistent
 
-import cellblender
 
-
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
 from . import cellblender_preferences
 from . import cellblender_project
 from . import cellblender_initialization

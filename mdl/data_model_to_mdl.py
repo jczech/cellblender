@@ -391,7 +391,7 @@ import sys
 import shutil
 
 try:
-    import cellblender
+    from .. import cellblender_utils
     cellblender_python_path = cellblender.cellblender_utils.get_python_path()
 except:
     cellblender_python_path = 'python3' # just use the system python

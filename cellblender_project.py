@@ -22,8 +22,6 @@ This file contains the classes for CellBlender's Preferences.
 
 """
 
-import cellblender
-
 # blender imports
 import bpy
 from bpy.app.handlers import persistent
@@ -43,13 +41,16 @@ import math
 
 
 # CellBlender imports
-import cellblender
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
 from . import parameter_system
 from . import cellblender_utils
 from . import cellblender_objects
 
-from cellblender.cellblender_utils import mcell_files_path
-from cellblender.io_mesh_mcell_mdl import export_mcell_mdl
+#from cellblender.cellblender_utils import mcell_files_path
+#from cellblender.io_mesh_mcell_mdl import export_mcell_mdl
+from . import cellblender_utils
+from . import io_mesh_mcell_mdl
 
 
 
@@ -222,7 +223,7 @@ class MCELL_OT_export_project(bpy.types.Operator):
             # Force the project directory to be where the .blend file lives
             cellblender_objects.model_objects_update(context)
 
-            filepath = os.path.join ( mcell_files_path(), "output_data" )
+            filepath = os.path.join ( cellblender_utils.mcell_files_path(), "output_data" )
             os.makedirs(filepath, exist_ok=True)
 
             # Set this for now to have it hopefully propagate until base_name can
@@ -233,7 +234,7 @@ class MCELL_OT_export_project(bpy.types.Operator):
             #   filepath, mcell.project_settings.base_name + ".main.mdl")
             mainmdl = os.path.join(filepath, scene_name + ".main.mdl")
             #   bpy.ops.export_mdl_mesh.mdl('EXEC_DEFAULT', filepath=mainmdl)
-            export_mcell_mdl.save(context, mainmdl)
+            io_mesh_mcell_mdl.export_mcell_mdl.save(context, mainmdl)
 
             # These two branches of the if statement seem identical ?
 

@@ -1,7 +1,9 @@
 import os
 import subprocess
 
-from cellblender.cellblender_utils import get_python_path
+print(f'>>>>>>>>>>> mpl_simple: {__package__} <<<<<<<<<<')
+
+from ...cellblender_utils import get_python_path
 
 def get_name():
     return("Simple Plotter")

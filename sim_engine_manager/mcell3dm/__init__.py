@@ -4,8 +4,6 @@ import sys
 import pickle
 import shutil
 
-import cellblender
-import cellblender.sim_engines as engine_manager
 
 from . import data_model_to_mdl_3
 from . import run_data_model_mcell_3

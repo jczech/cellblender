@@ -21,7 +21,10 @@
 
 import bpy
 
-from cellblender.cellblender_utils import preserve_selection_use_operator
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
+
+from ..cellblender_utils import preserve_selection_use_operator
 
 
 def import_obj(mdlobj, obj_mat, reg_mat, add_to_model_objects=True):

@@ -63,6 +63,10 @@ import pprint
 import json
 import os
 
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
+
+
 try:
   from bpy_extras.io_utils import ExportHelper
 except:

@@ -22,7 +22,6 @@ This file contains the classes for CellBlender's Reactions.
 
 """
 
-import cellblender
 
 # blender imports
 import bpy
@@ -34,7 +33,6 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, \
 import re
 
 # CellBlender imports
-import cellblender
 from . import parameter_system
 from . import data_model
 

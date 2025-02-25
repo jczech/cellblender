@@ -22,8 +22,6 @@ This file contains the classes for CellBlender's Preferences.
 
 """
 
-import cellblender
-
 # blender imports
 import bpy
 from bpy.app.handlers import persistent
@@ -40,7 +38,7 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, \
 import re
 
 # CellBlender imports
-import cellblender
+#import cellblender
 from . import parameter_system
 from . import cellblender_utils
 

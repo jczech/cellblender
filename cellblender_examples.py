@@ -15,11 +15,15 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import cellblender
 import bpy, bmesh
 import os
 import mathutils
-from cellblender import examples
+
+import importlib
+globals()['cellblender'] = importlib.import_module(__package__)
+
+#from cellblender import examples
+from . import examples
 
 
 def clear_texts():
