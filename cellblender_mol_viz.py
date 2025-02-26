@@ -1226,49 +1226,11 @@ def mol_viz_file_read(mcell, filepath):
                 mol_pos_mesh.vertices.add(len(mol_pos)//3)  # realloc and replace old vertices with new vertices
                 mol_pos_mesh.vertices.foreach_set("co", mol_pos)
 
-                use_orient = mol.glyph_orientation
-
                 # Randomly orient volume molecules
                 if mol_type == 0:
                   mol_orient.extend([random.uniform(
                       -1.0, 1.0) for i in range(len(mol_pos))])
 
-                '''
-                # without geometry nodes, better way to set orientations for vol and surf molecules differently
-                if use_orient:
-                  if mol_type == 0:
-                    mol_orient.extend([random.uniform(
-                        -1.0, 1.0) for i in range(len(mol_pos))])
-                  bm = bmesh.new()
-                  set_mol_orientation(bm, mol_pos, mol_orient)
-                '''
-
-                '''
-                # without geometry nodes, alternative way to set orientations for vol and surf molecules differently
-                if mol_type == 0:
-                  if use_vol_orient:
-                    use_orient = True
-                    # Randomly orient volume molecules
-                    mol_orient.extend([random.uniform(
-                        -1.0, 1.0) for i in range(len(mol_pos))])
-                    bm = bmesh.new()
-                    set_mol_orientation(bm, mol_pos, mol_orient)
-                else:
-                  if use_surf_orient:
-                    use_orient = True
-                    bm = bmesh.new()
-                    set_mol_orientation(bm, mol_pos, mol_orient)
-                '''
-
-                '''
-                # without geometry nodes, create mesh
-                if use_orient:
-                  bm.to_mesh(mol_pos_mesh)
-                  bm.free()
-                else:
-                  mol_pos_mesh.vertices.add(len(mol_pos)//3)
-                  mol_pos_mesh.vertices.foreach_set("co", mol_pos)
-                '''
 
                 # with geomtery nodes, add a custom attribute named "mol_orient" to the mol_pos_mesh to hold the molecule orientations
                 mol_orient_attr = mol_pos_mesh.attributes.get('mol_orient')

@@ -878,7 +878,6 @@ class MCellMoleculeProperty(bpy.types.PropertyGroup):
 
     glyph_visibility: BoolProperty ( default=True, description='Show/Hide this molecule glyph', update=glyph_visibility_callback )
     glyph_show_only: BoolProperty ( default=False, description='Show/Hide only this molecule glyph', update=glyph_show_only_callback )
-    glyph_orientation: BoolProperty ( default=False, description='Enable/Disable glyph orientation')
 
     id: IntProperty(name="Molecule ID", default=0)
     type_enum = [
@@ -1877,17 +1876,6 @@ class MCELL_UL_check_molecule(bpy.types.UIList):
             else:
                 col.label (text=" ")
 
-
-            #col = layout.column()
-            #col.operator("mcell.molecule_show_only", icon='VIEWZOOM', text="")
-            col = layout.column()
-            if item.glyph_orientation:
-              if item.type == '2D':
-                col.prop(item, "glyph_orientation", text="", icon='EMPTY_SINGLE_ARROW')
-              else:
-                col.prop(item, "glyph_orientation", text="", icon='FILE_REFRESH')
-            else:
-              col.prop(item, "glyph_orientation", text="", icon='ARROW_LEFTRIGHT')
             col = layout.column()
             col.prop(item, "glyph_show_only", text="", icon='VIEWZOOM')
             col = layout.column()
@@ -2213,42 +2201,6 @@ class MCell_OT_molecule_hide_all(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MCell_OT_vol_orient_toggle(bpy.types.Operator):
-    bl_idname = "mcell.vol_orient_toggle"
-    bl_label = "Toggle Vol Mol Orientation"
-    bl_description = "Toggle orientation of volume molecules"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        ml = bpy.context.scene.mcell.molecules.molecule_list
-        vol_mols = [ mol for mol in ml if mol.type == '3D' ]
-        all_true = True
-        for mol in vol_mols:
-            all_true &= mol.glyph_orientation
-        for mol in vol_mols:
-            mol.glyph_orientation = not all_true
-
-        return {'FINISHED'}
-
-
-class MCell_OT_surf_orient_toggle(bpy.types.Operator):
-    bl_idname = "mcell.surf_orient_toggle"
-    bl_label = "Toggle Surf Mol Orientation"
-    bl_description = "Toggle orientation of surface molecules"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        ml = bpy.context.scene.mcell.molecules.molecule_list
-        surf_mols = [ mol for mol in ml if mol.type == '2D' ]
-        all_true = True
-        for mol in surf_mols:
-            all_true &= mol.glyph_orientation
-        for mol in surf_mols:
-            mol.glyph_orientation = not all_true
-
-        return {'FINISHED'}
-
-
 class MCellMoleculesListProperty(bpy.types.PropertyGroup):
     contains_cellblender_parameters: BoolProperty(name="Contains CellBlender Parameters", default=True)
     molecule_list: CollectionProperty(type=MCellMoleculeProperty, name="Molecule List")
@@ -2513,8 +2465,6 @@ class MCellMoleculesListProperty(bpy.types.PropertyGroup):
             subcol.operator("mcell.molecule_show_all", icon='HIDE_OFF', text="")
             subcol.operator("mcell.molecule_hide_all", icon='HIDE_ON', text="")
             subcol = col.column(align=True)
-            subcol.operator("mcell.vol_orient_toggle", icon='ONIONSKIN_ON', text="")
-            subcol.operator("mcell.surf_orient_toggle", icon='TEXTURE', text="")
             '''
             subcol = col.column(align=True)
             subcol.prop (self, "show_extra_columns", icon='PREFERENCES', text="")
@@ -2556,8 +2506,6 @@ classes = (
             MCELL_UL_check_component,
             MCell_OT_molecule_show_all,
             MCell_OT_molecule_hide_all,
-            MCell_OT_vol_orient_toggle,
-            MCell_OT_surf_orient_toggle,
             MCellMoleculesListProperty,
           )
 
