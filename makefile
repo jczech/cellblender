@@ -24,9 +24,9 @@ INSTALL_DIR ?= ~/my_blender_addons_link/
 SHELL = /bin/sh
 
 ifeq ($(UNAME_S),Linux)
-	SUBDIRS = icons io_mesh_mcell_mdl sim_engines sim_runners data_plotters developer_utilities
+	SUBDIRS = icons io_mesh_mcell_mdl sim_engine_manager sim_runner_manager data_plotters developer_utilities
 else
-	SUBDIRS = icons io_mesh_mcell_mdl sim_engines sim_runners data_plotters developer_utilities
+	SUBDIRS = icons io_mesh_mcell_mdl sim_engine_manager sim_runner_manager data_plotters developer_utilities
 endif
 
 SOURCES = $(shell python3 cellblender_source_info.py)
@@ -34,14 +34,14 @@ SOURCES = $(shell python3 cellblender_source_info.py)
 # These are generally binary files that are built by this makefile and included in the .zip file
 IOMESHFILES = cellblender/io_mesh_mcell_mdl/_mdlmesh_parser.so cellblender/io_mesh_mcell_mdl/mdlmesh_parser.py
 
-MCELLENGINE = cellblender/sim_engines/mcell3/_mdlmesh_parser.so cellblender/sim_engines/mcell3/mdlmesh_parser.py
+MCELLENGINE = cellblender/sim_engine_manager/mcell3/_mdlmesh_parser.so cellblender/sim_engine_manager/mcell3/mdlmesh_parser.py
 
 ifeq ($(UNAME_S),Linux)
-  SIMCTLFILES = cellblender/sim_runners/java/SimControl.jar cellblender/sim_runners/open_gl/SimControl
+  SIMCTLFILES = cellblender/sim_runner_manager/java/SimControl.jar cellblender/sim_runner_manager/open_gl/SimControl
 else
-  SIMCTLFILES = cellblender/sim_runners/java/SimControl.jar
+  SIMCTLFILES = cellblender/sim_runner_manager/java/SimControl.jar
 endif
-SIMLIBMCFILES = cellblender/sim_engines/limited_cpp/_libMCell.so cellblender/sim_engines/limited_cpp/mcell_main cellblender/sim_engines/sim_engines/limited_cpp/_libMCell.so cellblender/sim_engines/sim_engines/limited_cpp/mcell_main
+SIMLIBMCFILES = cellblender/sim_engine_manager/limited_cpp/_libMCell.so cellblender/sim_engine_manager/limited_cpp/mcell_main cellblender/sim_engine_manager/limited_cpp/_libMCell.so cellblender/sim_engine_manager/limited_cpp/mcell_main
 PLOTTERFILES = cellblender/data_plotters/java_plot/PlotData.jar
 BNGFILES = cellblender/bng/bin/sbml2json
 
@@ -85,8 +85,8 @@ cellblender.zip: cellblender $(SOURCES)
 clean:
 	rm -f cellblender.zip
 	(cd io_mesh_mcell_mdl ; make clean)
-	-(cd sim_engines ; make clean)
-	-(cd sim_runners ; make clean)
+	-(cd sim_engine_manager ; make clean)
+	-(cd sim_runner_manager ; make clean)
 	-(cd data_plotters ; make clean)
 
 id:
